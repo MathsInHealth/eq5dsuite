@@ -39,7 +39,7 @@ Figure 4.4: EQ-5D values: smoothed lines and confidence intervals by groupvar
 }
 \examples{
 tmp <- figure_4_4(df = example_data, name_fu = "month", 
-  name_groupvar = "gender", country = "United States")
+  name_groupvar = "gender", country = "USA")
 tmp$p
 tmp$plot_data
 }

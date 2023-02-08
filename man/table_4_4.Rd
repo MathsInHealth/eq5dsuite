@@ -42,5 +42,5 @@ Table 4.3 EQ-5D values: by age and groupvar
 }
 \examples{
 table_4_4(df = example_data, name_age = "age", name_groupvar = "surgtype", 
-  country = "United States")
+  country = "USA")
 }

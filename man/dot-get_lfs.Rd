@@ -7,7 +7,7 @@
 .get_lfs(s, eq5d_version)
 }
 \arguments{
-\item{s}{A character vector representing the EQ-5D profile, e.g. 11123.}
+\item{s}{A character vector representing the EQ-5D state, e.g. 11123.}
 
 \item{eq5d_version}{A character string specifying the version of EQ-5D, i.e. 3L or 5L.}
 }
@@ -15,7 +15,7 @@
 A character vector representing the calculated LFS.
 }
 \description{
-This function calculates the Level Frequency Score (LFS) for a given EQ-5D profile and a specified version of EQ-5D.
+This function calculates the Level Frequency Score (LFS) for a given EQ-5D state and a specified version of EQ-5D.
 If at least one domain contains a missing entry, the whole LFS is set to be NA.
 }
 \examples{

@@ -35,7 +35,7 @@ Summary plot and data used for plotting
 Figure 4.2: EQ-5D values by timepoints: mean values and 95% confidence intervals
 }
 \examples{
-tmp <- figure_4_2(df = example_data, name_fu = "month", country = "United States")
+tmp <- figure_4_2(df = example_data, name_fu = "month", country = "USA")
 tmp$p
 tmp$plot_data
 }

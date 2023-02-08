@@ -23,7 +23,7 @@ Summary plot and data used for plotting
 Figure 2.8: EQ-5D values plotted against LSS
 }
 \examples{
-tmp <- figure_2_8(df = example_data, country = "United States")
+tmp <- figure_2_8(df = example_data, country = "USA")
 tmp$p
 tmp$plot_data
 }

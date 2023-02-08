@@ -7,7 +7,7 @@
 .pchc(df, group_by, add_noprobs = FALSE)
 }
 \arguments{
-\item{df}{A data frame with EQ-5D profiles and variables to group by. The dataset is assumed to be have been ordered correctly.}
+\item{df}{A data frame with EQ-5D states and variables to group by. The dataset is assumed to be have been ordered correctly.}
 
 \item{group_by}{Character vector of variables to group by}
 

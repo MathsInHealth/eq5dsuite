@@ -23,6 +23,6 @@ Summary data frame
 Table 2.8: Number of observations in the LFS (Level Frequency Score) according to the EQ-5D values
 }
 \examples{
-table_2_8(df = example_data, country = "United States")
-table_2_8(df = example_data, eq5d_version = "3L", country = "United States")
+table_2_8(df = example_data, country = "USA")
+table_2_8(df = example_data, eq5d_version = "3L", country = "USA")
 }

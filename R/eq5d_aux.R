@@ -67,10 +67,10 @@
 
 #' Calculate the Level Frequency Score (LFS)
 #'
-#' This function calculates the Level Frequency Score (LFS) for a given EQ-5D profile and a specified version of EQ-5D.
+#' This function calculates the Level Frequency Score (LFS) for a given EQ-5D state and a specified version of EQ-5D.
 #' If at least one domain contains a missing entry, the whole LFS is set to be NA.
 #'
-#' @param s A character vector representing the EQ-5D profile, e.g. 11123.
+#' @param s A character vector representing the EQ-5D state, e.g. 11123.
 #' @param eq5d_version A character string specifying the version of EQ-5D, i.e. 3L or 5L.
 #' @return A character vector representing the calculated LFS.
 #' @examples
@@ -90,66 +90,39 @@
   return(lfs)
 }
 
-#' Get country code based on input string
-#'
-#' This function returns the country code based on the input string and a specified version of EQ-5D. The country code is the short name extracted from the respective country_codes dataset.
-#'
-#' @param country A character string representing the name of the country.
-#' @param eq5d_version A character string specifying the version of EQ-5D, i.e. 3L or 5L.
-#' @return A character string representing the calculated country code, or `NA` if the input country name is not found in the country_codes dataset.
-#' @examples
-#' .get_country_code("United Kingdom", "3L") # returns `United Kingdom`.
-#' .get_country_code("GB", "3L") # returns `United Kingdom`.
-#' .get_country_code("GB", "5L") 
-#' # returns `NA` as the 5L value set is currently not available for the United Kingdom
-#' @export
-#' 
-.get_country_code <- function(country, eq5d_version){
-  
-  # extract correct country codes
-  country_codes_temp <- country_codes[[eq5d_version]]
-  # identify supplied wording anywhere in the country_codes dataset
-  temp <- which(toupper(as.matrix(country_codes_temp)) == toupper(country), arr.ind = T)
-  # read off short name
-  retval <- if(nrow(temp))  
-    country_codes_temp$Name_short[temp[1,1]] else
-      NA
-  
-  return(retval)
-}
-
 #' Add utility values to a data frame
 #'
 #' This function adds utility values to a data frame based on a specified version of EQ-5D and a country name.
 #'
-#' @param df A data frame containing the profile data. The profile must be included in the data frame as a character vector under the column named `profile`.
+#' @param df A data frame containing the state data. The state must be included in the data frame as a character vector under the column named `state`.
 #' @param eq5d_version A character string specifying the version of EQ-5D, i.e. 3L or 5L.
 #' @param country A character string representing the name of the country. This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return A data frame with an additional column named `utility` containing the calculated utility values. If the input country name is not found in the country_codes dataset, a list of available codes is printed, and subsequentyl an error message is displayed and the function stops.
 #' @examples
-#' df <- data.frame(profile = c("11111", "11123", "32541"))
-#' .add_utility(df, "3L", "United Kingdom")
+#' df <- data.frame(state = c("11111", "11123", "32541"))
+#' .add_utility(df, "3L", "GB")
 #' \dontrun{
-#' .add_utility(df, "5L", "United Kingdom")
+#' .add_utility(df, "5L", "GB")
 #' }
 #' @export
 #' 
 .add_utility <- function(df, eq5d_version, country) {
   
+  pkgenv <- getOption("eq.env")
+  
   # check whether the valuation for this country code exists
-  country_code <- .get_country_code(country = country, eq5d_version = eq5d_version)
+  country_code <- .fixCountries(countries = country, EQvariant = eq5d_version)
   if (is.na(country_code)) {
     message('No valid countries listed. These value sets are currently available.')
-    print(country_codes[[eq5d_version]])
-    stop('Stopping.')
+    eqxwr_display(version = eq5d_version)
+    #print(country_codes[[eq5d_version]])
+    #stop('Stopping.')
   }
   
   # country identifiable; proceed to extract the data
-  vs <- value_sets[[eq5d_version]] %>%
-    select(profile, !!(sym(country_code))) %>%
-    rename(utility = !!quo_name(country_code)) %>%
-    # convert utility into a numeric
-    mutate(utility = as.numeric(utility))
+  vs <- get(paste0(".vsets", eq5d_version)) %>%
+    select(state, !!(sym(country_code))) %>%
+    rename(utility = !!quo_name(country_code))
   
   # merge with df
   df <- merge(df, vs, all.x = TRUE) 
@@ -159,30 +132,30 @@
 
 #' Data checking/preparation: EQ-5D variables
 #'
-#' This function prepares a data frame for analysis by extracting, processing, and adding columns for EQ-5D variables, including profile, LSS (Level Sum Score), LFS (Level Frequency Score) and utility.
+#' This function prepares a data frame for analysis by extracting, processing, and adding columns for EQ-5D variables, including state, LSS (Level Sum Score), LFS (Level Frequency Score) and utility.
 #' 
 #' @param df a data frame of EQ-5D scores
 #' @param names character vector of length 5 with names of EQ-5D variables in the data frame. The variables should be in an integer format.
-#' @param add_profile logical indicating whether the EQ-5D profile should be added
+#' @param add_state logical indicating whether the EQ-5D state should be added
 #' @param add_lss logical indicating whether the LSS (Level Sum Score) should be added
 #' @param add_lfs logical indicating whether the LFS (Level Frequency Score) should be added
 #' @param add_utility logical indicating whether the utility should be added
 #' @param eq5d_version character indicating the version of the EQ-5D questionnaire to use (either "3L" or "5L")
 #' @param country character indicating the country to retrieve the quality of life score for
-#' @return a modified data frame with EQ-5D domain columns renamed to default names, and, if necessary, with added columns for profile, LSS, LFS, and/or utility. If any of the checks fail (e.g. EQ-5D columns are not in an integer format), an error message is displayed and the function is stopping.
+#' @return a modified data frame with EQ-5D domain columns renamed to default names, and, if necessary, with added columns for state, LSS, LFS, and/or utility. If any of the checks fail (e.g. EQ-5D columns are not in an integer format), an error message is displayed and the function is stopping.
 #' @examples
 #' set.seed(1234)
 #' df <- data.frame(mo = sample(1:5, 3), sc = sample(1:5, 3), 
 #'   ua = sample(1:5, 3), pd = sample(1:5, 3), ad = sample(1:5, 3))
 #' .prep_eq5d(df, names = c("mo", "sc", "ua", "pd", "ad"), 
-#'   add_profile = TRUE, add_lss = TRUE)
+#'   add_state = TRUE, add_lss = TRUE)
 #' .prep_eq5d(df, names = c("mo", "sc", "ua", "pd", "ad"),
-#'   add_profile = TRUE, add_lss = TRUE, add_lfs = TRUE, add_utility = TRUE,
+#'   add_state = TRUE, add_lss = TRUE, add_lfs = TRUE, add_utility = TRUE,
 #'   eq5d_version = "5L", country = "Denmark")
 #' @export
 #' 
 .prep_eq5d <- function(df, names,
-                       add_profile = FALSE,
+                       add_state = FALSE,
                        add_lss = FALSE,
                        add_lfs = FALSE,
                        add_utility = FALSE,
@@ -218,12 +191,12 @@
            anxietyd = !!quo_name(names[5]))
   
   # add additional columns if required
-  if (add_profile)
-    df <- df %>% mutate(profile = str_c(mobility, selfcare, usualact, paindisc, anxietyd))
+  if (add_state)
+    df <- df %>% mutate(state = str_c(mobility, selfcare, usualact, paindisc, anxietyd))
   if (add_lss)
     df <- df %>% mutate(lss = mobility + selfcare + usualact + paindisc + anxietyd)
   if (add_lfs)
-    df <- df %>% mutate(lfs = .get_lfs(s = profile, eq5d_version = eq5d_version))
+    df <- df %>% mutate(lfs = .get_lfs(s = state, eq5d_version = eq5d_version))
   if (add_utility)
     df <- .add_utility(df = df, eq5d_version = eq5d_version, country = country) 
   
@@ -371,7 +344,7 @@
 #' It is used in the code for table_2_4-table_2_5 and figure_2_1-figure_2_4. 
 #' An EQ-5D health state is deemed to be `better` than another if it is better on at least one dimension and is no worse on any other dimension.
 #' An EQ-5D health state is deemed to be `worse` than another if it is worse in at least one dimension and is no better in any other dimension.
-#' @param df A data frame with EQ-5D profiles and variables to group by. The dataset is assumed to be have been ordered correctly.
+#' @param df A data frame with EQ-5D states and variables to group by. The dataset is assumed to be have been ordered correctly.
 #' @param group_by Character vector of variables to group by
 #' @param add_noprobs Logical value indicating whether to include a separate classification for those without problems (default is FALSE)
 #' @return A data frame with PCHC value for each combination of the grouping variables. 
@@ -415,7 +388,7 @@
   # classify each combination
   # every change is classified compared to the next line
   df <- df %>%
-    mutate(profile = 
+    mutate(state = 
              case_when(
                # no change
                better == 0 & worse == 0 ~ "No change",
@@ -434,8 +407,8 @@
       # so enough to check for 11111 at the classifications stage
       mutate(noprobs = 
                (mobility == 1 & selfcare == 1 & usualact == 1 & paindisc == 1 & anxietyd == 1)) %>%
-      mutate(profile_noprobs = case_when((profile == "No change" & noprobs) ~ "No problems",
-                                         TRUE ~ profile))
+      mutate(state_noprobs = case_when((state == "No change" & noprobs) ~ "No problems",
+                                         TRUE ~ state))
   }
   
   return(df)

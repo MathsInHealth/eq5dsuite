@@ -7,7 +7,7 @@
 .prep_eq5d(
   df,
   names,
-  add_profile = FALSE,
+  add_state = FALSE,
   add_lss = FALSE,
   add_lfs = FALSE,
   add_utility = FALSE,
@@ -20,7 +20,7 @@
 
 \item{names}{character vector of length 5 with names of EQ-5D variables in the data frame. The variables should be in an integer format.}
 
-\item{add_profile}{logical indicating whether the EQ-5D profile should be added}
+\item{add_state}{logical indicating whether the EQ-5D state should be added}
 
 \item{add_lss}{logical indicating whether the LSS (Level Sum Score) should be added}
 
@@ -33,18 +33,18 @@
 \item{country}{character indicating the country to retrieve the quality of life score for}
 }
 \value{
-a modified data frame with EQ-5D domain columns renamed to default names, and, if necessary, with added columns for profile, LSS, LFS, and/or utility. If any of the checks fail (e.g. EQ-5D columns are not in an integer format), an error message is displayed and the function is stopping.
+a modified data frame with EQ-5D domain columns renamed to default names, and, if necessary, with added columns for state, LSS, LFS, and/or utility. If any of the checks fail (e.g. EQ-5D columns are not in an integer format), an error message is displayed and the function is stopping.
 }
 \description{
-This function prepares a data frame for analysis by extracting, processing, and adding columns for EQ-5D variables, including profile, LSS (Level Sum Score), LFS (Level Frequency Score) and utility.
+This function prepares a data frame for analysis by extracting, processing, and adding columns for EQ-5D variables, including state, LSS (Level Sum Score), LFS (Level Frequency Score) and utility.
 }
 \examples{
 set.seed(1234)
 df <- data.frame(mo = sample(1:5, 3), sc = sample(1:5, 3), 
   ua = sample(1:5, 3), pd = sample(1:5, 3), ad = sample(1:5, 3))
 .prep_eq5d(df, names = c("mo", "sc", "ua", "pd", "ad"), 
-  add_profile = TRUE, add_lss = TRUE)
+  add_state = TRUE, add_lss = TRUE)
 .prep_eq5d(df, names = c("mo", "sc", "ua", "pd", "ad"),
-  add_profile = TRUE, add_lss = TRUE, add_lfs = TRUE, add_utility = TRUE,
+  add_state = TRUE, add_lss = TRUE, add_lfs = TRUE, add_utility = TRUE,
   eq5d_version = "5L", country = "Denmark")
 }

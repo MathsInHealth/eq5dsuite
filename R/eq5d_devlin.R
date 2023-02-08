@@ -187,17 +187,17 @@ table_2_3 <- function(df,
   df <- df %>%
     select(!!!syms(names_all)) 
   # further checks and data preparation
-  df <- .prep_eq5d(df = df, names = names_eq5d, eq5d_version = eq5d_version, add_profile = TRUE) %>%
-    select(profile)
+  df <- .prep_eq5d(df = df, names = names_eq5d, eq5d_version = eq5d_version, add_state = TRUE) %>%
+    select(state)
   
   ### analysis ####
   
-  # all profiles
-  profiles_all <- df %>%
+  # all states
+  states_all <- df %>%
     # non-NA values
-    filter(!is.na(profile)) %>%
-    # group by profile
-    group_by(profile) %>%
+    filter(!is.na(state)) %>%
+    # group by state
+    group_by(state) %>%
     # add count
     summarise(n = n()) %>%
     # add percentage
@@ -206,25 +206,25 @@ table_2_3 <- function(df,
     # cumulative percentage
     mutate(cum_p = cumsum(p))
   
-  # most frequent n non-NA profiles
-  profiles_top <- profiles_all %>%
-    filter(!is.na(profile)) %>%
+  # most frequent n non-NA states
+  states_top <- states_all %>%
+    filter(!is.na(state)) %>%
     slice_head(n = n)
   
-  # worst profile
-  profile_worst <- if (eq5d_version == "5L") "55555" else "33333"
-  profiles_worst <- profiles_all %>%
-    filter(profile == profile_worst) %>%
+  # worst state
+  state_worst <- if (eq5d_version == "5L") "55555" else "33333"
+  states_worst <- states_all %>%
+    filter(state == state_worst) %>%
     mutate(cum_p = 1)
   
   # missing data
-  profile_na <- df %>%
-    summarise(n = sum(is.na(profile)), p = sum(is.na(profile)) / n()) %>%
-    mutate(profile = "Missing")
+  state_na <- df %>%
+    summarise(n = sum(is.na(state)), p = sum(is.na(state)) / n()) %>%
+    mutate(state = "Missing")
   
   # combine and tidy up
-  retval <- bind_rows(profiles_top, profiles_worst, profile_na) %>%
-    rename(`Health state` = profile,
+  retval <- bind_rows(states_top, states_worst, state_na) %>%
+    rename(`Health state` = state,
            Frequency = n,
            Percentage = p,
            `Cumulative percentage` = cum_p)
@@ -286,14 +286,14 @@ table_2_4 <- function(df,
   
   # calculate change
   df <- .pchc(df = df, group_by = c("id", "groupvar")) %>%
-    filter(!is.na(profile)) %>%
-    mutate(profile = 
-             factor(profile,
+    filter(!is.na(state)) %>%
+    mutate(state = 
+             factor(state,
                     levels = c("Improve", "Mixed change", "No change", "Worsen")))
   
-  # summarise by groupvar, fu & profile
+  # summarise by groupvar, fu & state
   summary_dim <- df %>%
-    group_by(groupvar, fu, profile) %>%
+    group_by(groupvar, fu, state) %>%
     summarise(n = n()) %>%
     mutate(p = n / sum(n)) %>%
     ungroup()
@@ -303,14 +303,14 @@ table_2_4 <- function(df,
     group_by(groupvar, fu) %>%
     summarise(n = sum(n), p = sum(p), .groups = "drop") %>%
     # add label
-    mutate(profile = "Grand Total") 
+    mutate(state = "Grand Total") 
   
   # combine & tidy up
   retval <- bind_rows(summary_dim, summary_total) %>%
     # reshape into a long format to subsequently impose order on columns in pivot_wider
     pivot_longer(cols = n:p) %>%
     # finally reshape wider
-    pivot_wider(id_cols = profile, 
+    pivot_wider(id_cols = state, 
                 names_from = c(groupvar, fu, name), 
                 values_from = value,
                 # fill NAs with 0
@@ -373,38 +373,38 @@ table_2_5 <- function(df,
   
   # calculate change
   df <- .pchc(df = df, group_by = c("id", "groupvar"), add_noprobs = TRUE) %>%
-    filter(!is.na(profile))
+    filter(!is.na(state))
   
   # separate out those with problems & calculate percentages
   summary_by_probs_status <- df %>%
-    mutate(profile_noprobs = case_when((profile_noprobs == "No problems") ~ "No problems",
+    mutate(state_noprobs = case_when((state_noprobs == "No problems") ~ "No problems",
                                        TRUE ~ "Total with problems")) %>%
-    group_by(groupvar, fu, profile_noprobs) %>%
+    group_by(groupvar, fu, state_noprobs) %>%
     summarise(n = n()) %>%
     mutate(p = n / sum(n))
   
   # summarise classes within those with problems
   summary_with_probs <- df %>%
-    filter(profile_noprobs != "No problems") %>%
-    group_by(groupvar, fu, profile_noprobs) %>%
+    filter(state_noprobs != "No problems") %>%
+    group_by(groupvar, fu, state_noprobs) %>%
     summarise(n = n()) %>%
     mutate(p = n / sum(n))
   
   # combine & tidy up
   retval <- bind_rows(summary_with_probs, summary_by_probs_status) %>%
     # impose order
-    mutate(profile_noprobs = factor(profile_noprobs, 
+    mutate(state_noprobs = factor(state_noprobs, 
                                     levels = c("Improve", "Mixed change", "No change", "Worsen",
                                                "Total with problems", "No problems"))) %>%
     # reshape into a long format to subsequently impose order on columns in pivot_wider
     pivot_longer(cols = n:p) %>%
     # finally reshape into a wide format
-    pivot_wider(id_cols = profile_noprobs, 
+    pivot_wider(id_cols = state_noprobs, 
                 names_from = c(groupvar, fu, name), 
                 values_from = value,
                 # fill NAs with 0
                 values_fill = list(value = 0)) %>%
-    arrange(profile_noprobs)
+    arrange(state_noprobs)
   
   # return value
   return(retval)
@@ -521,8 +521,8 @@ table_2_6 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_2_7(df = example_data, country = "United States")
-#' table_2_7(df = example_data, eq5d_version = "3L", country = "United States")
+#' table_2_7(df = example_data, country = "USA")
+#' table_2_7(df = example_data, eq5d_version = "3L", country = "USA")
 #' @export
 #'
 table_2_7 <- function(df, 
@@ -545,7 +545,7 @@ table_2_7 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE, 
+                   add_state = TRUE, 
                    add_lss = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country) %>%
     # leave relevant columns only
@@ -588,8 +588,8 @@ table_2_7 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_2_8(df = example_data, country = "United States")
-#' table_2_8(df = example_data, eq5d_version = "3L", country = "United States")
+#' table_2_8(df = example_data, country = "USA")
+#' table_2_8(df = example_data, eq5d_version = "3L", country = "USA")
 #' @export
 #'
 table_2_8 <- function(df, 
@@ -612,7 +612,7 @@ table_2_8 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE, 
+                   add_state = TRUE, 
                    add_lfs = TRUE, eq5d_version = eq5d_version, 
                    add_utility = TRUE, country = country) %>%
     # leave relevant columns only
@@ -643,7 +643,7 @@ table_2_8 <- function(df,
   return(retval)
 }
 
-#' Table 2.9: Distribution of the EQ-5D profiles by LFS (Level Frequency Score)
+#' Table 2.9: Distribution of the EQ-5D states by LFS (Level Frequency Score)
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -673,7 +673,7 @@ table_2_9 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE, 
+                   add_state = TRUE, 
                    add_lfs = TRUE, eq5d_version = eq5d_version) %>%
     # leave relevant columns only
     select(lfs)
@@ -742,7 +742,7 @@ table_2_10 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE, 
+                   add_state = TRUE, 
                    add_lfs = TRUE, eq5d_version = eq5d_version,
                    add_utility = TRUE, country = country) 
   
@@ -887,7 +887,7 @@ table_3_2 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_4_2(df = example_data, country = "United States")
+#' table_4_2(df = example_data, country = "USA")
 #' table_4_2(df = example_data, eq5d_version = "3L", country = "Denmark")
 #' table_4_2(df = example_data, country = "Denmark")
 #' @export
@@ -919,7 +919,7 @@ table_4_2 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country)
   df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
   df <- df %>%
@@ -947,7 +947,7 @@ table_4_2 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_4_3(df = example_data, name_groupvar = "surgtype", country = "United States")
+#' table_4_3(df = example_data, name_groupvar = "surgtype", country = "USA")
 #' @export
 #'
 table_4_3 <- function(df,
@@ -980,7 +980,7 @@ table_4_3 <- function(df,
   df <- df %>%
     rename(groupvar = !!quo_name(name_groupvar))
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country)
   df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
   df <- df %>%
@@ -1018,7 +1018,7 @@ table_4_3 <- function(df,
 #' @return Summary data frame
 #' @examples
 #' table_4_4(df = example_data, name_age = "age", name_groupvar = "surgtype", 
-#'   country = "United States")
+#'   country = "USA")
 #' @export
 #'
 table_4_4 <- function(df,
@@ -1053,7 +1053,7 @@ table_4_4 <- function(df,
     rename(groupvar = !!quo_name(name_groupvar),
            age = !!quo_name(name_age))
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country)
   df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
   df <- df %>%
@@ -1145,20 +1145,20 @@ figure_2_1 <- function(df,
   
   # calculate change
   df <- .pchc(df = df, group_by = c("id"), add_noprobs = TRUE) %>%
-    filter(!is.na(profile)) %>%
-    mutate(profile_noprobs = 
-             factor(profile_noprobs,
+    filter(!is.na(state)) %>%
+    mutate(state_noprobs = 
+             factor(state_noprobs,
                     levels = c("No problems", "No change", "Improve", "Worsen", "Mixed change")))
   
-  # summarise by groupvar, & profile
+  # summarise by groupvar, & state
   plot_data <- df %>%
-    group_by(fu, profile_noprobs) %>%
+    group_by(fu, state_noprobs) %>%
     summarise(n = n()) %>%
     mutate(p = n / sum(n)) %>%
     select(-n)
   
   # plot
-  p <- ggplot(plot_data, aes(x = profile_noprobs, y = p, fill = fu)) + 
+  p <- ggplot(plot_data, aes(x = state_noprobs, y = p, fill = fu)) + 
     # bar chart
     geom_bar(stat = "identity", position = "dodge") + 
     # add percentages
@@ -1178,8 +1178,8 @@ figure_2_1 <- function(df,
   
   # tidy up summary
   plot_data <- plot_data %>%
-    pivot_wider(id_cols = profile_noprobs, names_from = fu, values_from = p) %>%
-    rename(`Change category` = profile_noprobs)
+    pivot_wider(id_cols = state_noprobs, names_from = fu, values_from = p) %>%
+    rename(`Change category` = state_noprobs)
   
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
@@ -1234,12 +1234,12 @@ figure_2_2 <- function(df,
   
   # calculate change
   df <- .pchc(df = df, group_by = c("id")) %>%
-    filter(!is.na(profile))
+    filter(!is.na(state))
   
-  # summarise by name_groupvar & profile
+  # summarise by name_groupvar & state
   levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
   plot_data <- df %>%
-    filter(profile == "Improve") %>%
+    filter(state == "Improve") %>%
     select(fu, mobility_diff:anxietyd_diff) %>%
     pivot_longer(cols = mobility_diff:anxietyd_diff) %>%
     group_by(fu, name) %>%
@@ -1313,12 +1313,12 @@ figure_2_3 <- function(df,
   
   # calculate change
   df <- .pchc(df = df, group_by = c("id")) %>%
-    filter(!is.na(profile))
+    filter(!is.na(state))
   
-  # summarise by name_groupvar & profile
+  # summarise by name_groupvar & state
   levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
   plot_data <- df %>%
-    filter(profile == "Worsen") %>%
+    filter(state == "Worsen") %>%
     select(fu, mobility_diff:anxietyd_diff) %>%
     pivot_longer(cols = mobility_diff:anxietyd_diff) %>%
     group_by(fu, name) %>%
@@ -1392,7 +1392,7 @@ figure_2_4 <- function(df,
   
   # calculate change
   df <- .pchc(df = df, group_by = c("id")) %>%
-    filter(!is.na(profile))
+    filter(!is.na(state))
   
   # read fu values
   n_time <- length(levels_fu)
@@ -1403,7 +1403,7 @@ figure_2_4 <- function(df,
   levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
   plot_data <- df %>%
     ungroup() %>%
-    filter(profile == "Mixed change") %>%
+    filter(state == "Mixed change") %>%
     select(fu, mobility_diff:anxietyd_diff) %>%
     pivot_longer(cols = mobility_diff:anxietyd_diff) %>%
     group_by(fu, name) %>%
@@ -1442,7 +1442,7 @@ figure_2_4 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_8(df = example_data, country = "United States")
+#' tmp <- figure_2_8(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -1467,7 +1467,7 @@ figure_2_8 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE, 
+                   add_state = TRUE, 
                    add_lss = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country) %>%
     # leave relevant columns only
@@ -1538,7 +1538,7 @@ figure_2_8 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_10(df = example_data, country = "United States")
+#' tmp <- figure_2_10(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -1563,7 +1563,7 @@ figure_2_10 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE, 
+                   add_state = TRUE, 
                    add_lfs = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country) %>%
     # leave relevant columns only
@@ -1742,7 +1742,7 @@ figure_3_2 <- function(df, name_vas = NULL){
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_2(df = example_data, name_fu = "month", country = "United States")
+#' tmp <- figure_4_2(df = example_data, name_fu = "month", country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -1773,7 +1773,7 @@ figure_4_2 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country)
   df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
   df <- df %>%
@@ -1814,7 +1814,7 @@ figure_4_2 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_3(df = example_data, name_groupvar = "surgtype", country = "United States")
+#' tmp <- figure_4_3(df = example_data, name_groupvar = "surgtype", country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -1842,7 +1842,7 @@ figure_4_3 <- function(df,
   df <- df %>%
     rename(groupvar = !!quo_name(name_groupvar))
   df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country) %>%
     select(groupvar, utility)
   
@@ -1896,7 +1896,7 @@ figure_4_3 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @examples
 #' tmp <- figure_4_4(df = example_data, name_fu = "month", 
-#'   name_groupvar = "gender", country = "United States")
+#'   name_groupvar = "gender", country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -1932,7 +1932,7 @@ figure_4_4 <- function(df,
     # factorise groupvar variable
     mutate(groupvar = factor(groupvar))
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country)
   df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
   df <- df %>%
@@ -1972,7 +1972,7 @@ figure_4_4 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_7(df = example_data, country = "United States")
+#' tmp <- figure_4_7(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -1997,7 +1997,7 @@ figure_4_7 <- function(df,
     select(!!!syms(names_all)) 
   # further checks and data preparation
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country) %>%
     select(utility)
   
@@ -2032,7 +2032,7 @@ figure_4_7 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_11(df = example_data, country = "United States")
+#' tmp <- figure_4_11(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
@@ -2060,7 +2060,7 @@ figure_4_11 <- function(df,
   # further checks and data preparation
   df <- .prep_vas(df = df, name = name_vas)
   df <- .prep_eq5d(df = df, names = names_eq5d,
-                   add_profile = TRUE,
+                   add_state = TRUE,
                    add_utility = TRUE, eq5d_version = eq5d_version, country = country) %>%
     select(vas, utility)
   

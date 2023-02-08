@@ -23,6 +23,6 @@ Summary data frame
 Table 2.7: Summary statistics for the EQ-5D values by all the different LSSs (Level Sum Scores)
 }
 \examples{
-table_2_7(df = example_data, country = "United States")
-table_2_7(df = example_data, eq5d_version = "3L", country = "United States")
+table_2_7(df = example_data, country = "USA")
+table_2_7(df = example_data, eq5d_version = "3L", country = "USA")
 }

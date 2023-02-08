@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{table_2_9}
 \alias{table_2_9}
-\title{Table 2.9: Distribution of the EQ-5D profiles by LFS (Level Frequency Score)}
+\title{Table 2.9: Distribution of the EQ-5D states by LFS (Level Frequency Score)}
 \usage{
 table_2_9(df, names_eq5d = NULL, eq5d_version = NULL)
 }
@@ -17,7 +17,7 @@ table_2_9(df, names_eq5d = NULL, eq5d_version = NULL)
 Summary data frame
 }
 \description{
-Table 2.9: Distribution of the EQ-5D profiles by LFS (Level Frequency Score)
+Table 2.9: Distribution of the EQ-5D states by LFS (Level Frequency Score)
 }
 \examples{
 table_2_9(df = example_data)

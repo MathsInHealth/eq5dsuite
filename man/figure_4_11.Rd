@@ -31,7 +31,7 @@ Summary plot and data used for plotting
 Figure 4.11: EQ-5D values: smoothed lines and confidence intervals by groupvar
 }
 \examples{
-tmp <- figure_4_11(df = example_data, country = "United States")
+tmp <- figure_4_11(df = example_data, country = "USA")
 tmp$p
 tmp$plot_data
 }

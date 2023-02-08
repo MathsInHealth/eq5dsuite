@@ -38,5 +38,5 @@ Summary data frame
 Table 4.3 EQ-5D values: by groupvar
 }
 \examples{
-table_4_3(df = example_data, name_groupvar = "surgtype", country = "United States")
+table_4_3(df = example_data, name_groupvar = "surgtype", country = "USA")
 }

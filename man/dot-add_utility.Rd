@@ -7,7 +7,7 @@
 .add_utility(df, eq5d_version, country)
 }
 \arguments{
-\item{df}{A data frame containing the profile data. The profile must be included in the data frame as a character vector under the column named `profile`.}
+\item{df}{A data frame containing the state data. The state must be included in the data frame as a character vector under the column named `state`.}
 
 \item{eq5d_version}{A character string specifying the version of EQ-5D, i.e. 3L or 5L.}
 
@@ -20,9 +20,9 @@ A data frame with an additional column named `utility` containing the calculated
 This function adds utility values to a data frame based on a specified version of EQ-5D and a country name.
 }
 \examples{
-df <- data.frame(profile = c("11111", "11123", "32541"))
-.add_utility(df, "3L", "United Kingdom")
+df <- data.frame(state = c("11111", "11123", "32541"))
+.add_utility(df, "3L", "GB")
 \dontrun{
-.add_utility(df, "5L", "United Kingdom")
+.add_utility(df, "5L", "GB")
 }
 }

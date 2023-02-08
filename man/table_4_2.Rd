@@ -35,7 +35,7 @@ Summary data frame
 Table 4.2 EQ-5D values: by timepoints
 }
 \examples{
-table_4_2(df = example_data, country = "United States")
+table_4_2(df = example_data, country = "USA")
 table_4_2(df = example_data, eq5d_version = "3L", country = "Denmark")
 table_4_2(df = example_data, country = "Denmark")
 }
