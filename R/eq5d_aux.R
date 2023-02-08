@@ -115,12 +115,11 @@
   if (is.na(country_code)) {
     message('No valid countries listed. These value sets are currently available.')
     eqxwr_display(version = eq5d_version)
-    #print(country_codes[[eq5d_version]])
-    #stop('Stopping.')
+    stop('Stopping.')
   }
   
   # country identifiable; proceed to extract the data
-  vs <- get(paste0(".vsets", eq5d_version)) %>%
+  vs <- pkgenv[[paste0("vsets", eq5d_version, "_combined")]] %>%
     select(state, !!(sym(country_code))) %>%
     rename(utility = !!quo_name(country_code))
   
