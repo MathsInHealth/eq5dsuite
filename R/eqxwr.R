@@ -48,7 +48,7 @@
 
 #' @title eqxwr
 #' @description Get reverse crosswalk values
-#' @param x A vector of 5-digit EQ-5D state indexes or a matrix/data.frame with columns corresponding to EQ-5D state dimensions
+#' @param x A vector of 5-digit EQ-5D-3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D state dimensions
 #' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3
 #' @param dim.names A vector of dimension names to identify dimension columns
 #' @return A vector of reverse crosswalk values or data.frame with one column per reverse crosswalk set requested.

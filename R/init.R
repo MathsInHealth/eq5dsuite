@@ -58,6 +58,10 @@
   if(!'probs' %in% names(pkgenv)) assign(x = "probs", value = .pstate3t5(pkgenv$PPP), envir = pkgenv)
   if('probs' %in% names(pkgenv)) assign(x = 'xwrsets', value = pkgenv$probs %*% cbind(as.matrix(.vsets5L[, -1, drop = F]), if("uservsets5L" %in% names(pkgenv)) as.matrix(pkgenv$uservsets5L[,-1, drop = F]) else NULL), envir = pkgenv)
   
+  # variables used for crosswalk
+  if (!'probs5t3' %in% names(pkgenv)) assign(x = "probs5t3", value = .pstate5t3(.EQxwprob), envir = pkgenv)
+  if('probs5t3' %in% names(pkgenv)) assign(x = 'xwsets', value = pkgenv$probs5t3 %*% cbind(as.matrix(.vsets3L[, -1, drop = F]), if("uservsets3L" %in% names(pkgenv)) as.matrix(pkgenv$uservsets3L[,-1, drop = F]) else NULL), envir = pkgenv)
+
   EQvariants <- c('5L' = '5L', '3L' = '3L')
   assign(x = 'country_codes', envir = pkgenv, value = lapply(EQvariants, function(EQvariant) {
     # message(EQvariant)
