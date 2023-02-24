@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_4_3}
 \alias{figure_4_3}
-\title{Figure 4.3: Mean EQ-5D values and 95% confidence intervals: all vs by groupvar}
+\title{Figure 4.3: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar}
 \usage{
 figure_4_3(df, names_eq5d = NULL, name_groupvar, eq5d_version = NULL, country)
 }
@@ -22,7 +22,7 @@ This could be in a 2-letter format, full name or short name, as specified in the
 Summary plot and data used for plotting
 }
 \description{
-Figure 4.3: Mean EQ-5D values and 95% confidence intervals: all vs by groupvar
+Figure 4.3: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar
 }
 \examples{
 tmp <- figure_4_3(df = example_data, name_groupvar = "surgtype", country = "USA")

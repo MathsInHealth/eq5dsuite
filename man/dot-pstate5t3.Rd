@@ -7,7 +7,7 @@
 .pstate5t3(.EQxwprob)
 }
 \arguments{
-\item{PPP}{15 x 5 matrix with probabilities per level/dimension, typically saved in .EQxwprob}
+\item{.EQxwprob}{15 x 5 matrix with probabilities per level/dimension, typically saved in .EQxwprob}
 }
 \value{
 An 3125x243 matrix with probabilities per state

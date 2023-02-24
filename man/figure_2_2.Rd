@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_2_2}
 \alias{figure_2_2}
-\title{Figure 2.2: Percentage of respondents who improved overall by the dimensions (%)}
+\title{Figure 2.2: Percentage of respondents who improved overall by the dimensions (\%)}
 \usage{
 figure_2_2(df, names_eq5d = NULL, name_fu = NULL, levels_fu = NULL, name_id)
 }
@@ -22,7 +22,7 @@ If NULL (default value), the levels will be ordered in the order of appearance i
 Summary plot and data used for plotting
 }
 \description{
-Figure 2.2: Percentage of respondents who improved overall by the dimensions (%)
+Figure 2.2: Percentage of respondents who improved overall by the dimensions (\%)
 }
 \examples{
 tmp <- figure_2_2(df = example_data, name_fu = "year_range", name_id = "id")

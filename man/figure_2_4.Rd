@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_2_4}
 \alias{figure_2_4}
-\title{Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (%)}
+\title{Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (\%)}
 \usage{
 figure_2_4(df, names_eq5d = NULL, name_fu = NULL, levels_fu = NULL, name_id)
 }
@@ -22,7 +22,7 @@ If NULL (default value), the levels will be ordered in the order of appearance i
 Summary plot and data used for plotting
 }
 \description{
-Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (%)
+Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (\%)
 }
 \examples{
 tmp <- figure_2_4(df = example_data, name_fu = "year_range", name_id = "id")

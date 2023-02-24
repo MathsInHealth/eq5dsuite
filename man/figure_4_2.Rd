@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_4_2}
 \alias{figure_4_2}
-\title{Figure 4.2: EQ-5D values by timepoints: mean values and 95% confidence intervals}
+\title{Figure 4.2: EQ-5D values by timepoints: mean values and 95\% confidence intervals}
 \usage{
 figure_4_2(
   df,
@@ -32,7 +32,7 @@ This could be in a 2-letter format, full name or short name, as specified in the
 Summary plot and data used for plotting
 }
 \description{
-Figure 4.2: EQ-5D values by timepoints: mean values and 95% confidence intervals
+Figure 4.2: EQ-5D values by timepoints: mean values and 95\% confidence intervals
 }
 \examples{
 tmp <- figure_4_2(df = example_data, name_fu = "month", country = "USA")

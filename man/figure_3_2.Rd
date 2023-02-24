@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_3_2}
 \alias{figure_3_2}
-\title{Figure 3.1: Mid-point EQ VAS scores}
+\title{Figure 3.2: Mid-point EQ VAS scores}
 \usage{
 figure_3_2(df, name_vas = NULL)
 }
@@ -15,7 +15,7 @@ figure_3_2(df, name_vas = NULL)
 Summary plot and data used for plotting
 }
 \description{
-Figure 3.1: Mid-point EQ VAS scores
+Figure 3.2: Mid-point EQ VAS scores
 }
 \examples{
 tmp <- figure_3_2(df = example_data)

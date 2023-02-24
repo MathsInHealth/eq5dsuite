@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_aux.R
 \name{.summary_mean_ci}
 \alias{.summary_mean_ci}
-\title{Wrapper to calculate summary mean with 95% confidence interval}
+\title{Wrapper to calculate summary mean with 95\% confidence interval}
 \usage{
 .summary_mean_ci(df, group_by)
 }
@@ -16,9 +16,9 @@ A data frame with the mean, lower bound, and upper bound of the 95% confidence i
 examples
 df <- data.frame(group = c("A", "A", "B", "B"), 
                  utility = c(0.5, 0.7, 0.8, 0.9))
-.summary_table_4_4(df, group_by = "group")
+.summary_mean_ci(df, group_by = "group")
 }
 \description{
-This internal function calculates summary mean and 95% confidence interval of the utility variable, which can also be grouped.
+This internal function calculates summary mean and 95\% confidence interval of the utility variable, which can also be grouped.
 The function is used in Figures 4.2-4.4.
 }
