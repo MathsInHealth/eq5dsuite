@@ -4,12 +4,12 @@
 \alias{.pchc}
 \title{Wrapper to determine Paretian Classification of Health Change (PCHC)}
 \usage{
-.pchc(df, group_by, add_noprobs = FALSE)
+.pchc(df, level_fu_1, add_noprobs = FALSE)
 }
 \arguments{
-\item{df}{A data frame with EQ-5D states and variables to group by. The dataset is assumed to be have been ordered correctly.}
+\item{df}{A data frame with EQ-5D states and follow-up variable. The dataset is assumed to be have been ordered correctly.}
 
-\item{group_by}{Character vector of variables to group by}
+\item{level_fu_1}{Value of the first (i.e. earliest) follow-up. Would normally be defined as levels_fu[1].}
 
 \item{add_noprobs}{Logical value indicating whether to include a separate classification for those without problems (default is FALSE)}
 }
@@ -25,10 +25,11 @@ An EQ-5D health state is deemed to be `worse` than another if it is worse in at 
 }
 \examples{
 df <- data.frame(id = c(1, 1, 2, 2),
+                 fu = c(1, 2, 1, 2),
                  mobility = c(1, 1, 1, 1),
                  selfcare = c(1, 1, 5, 1),
                  usualact = c(1, 1, 4, 3),
                  paindisc = c(1, 1, 1, 3),
                  anxietyd = c(1, 1, 1, 1))
-.pchc(df, c("id"), add_noprobs = TRUE)
+.pchc(df, level_fu_1 = 1, add_noprobs = TRUE)
 }

@@ -298,7 +298,7 @@
 #'
 #' This function calculates the mode of a numeric or character vector. 
 #' If there are multiple modes, the first one is returned. 
-#' The code is taken from an \href{https://www.tutorialspoint.com/r/r_mean_median_mode.htm#:~:text=The%20mode%20is%20the%20value,built%20function%20to%20calculate%20mode.}{R help page}.
+#' The code is taken from an \href{https://www.tutorialspoint.com/r/r_mean_median_mode.htm}{R help page}.
 #'
 #' @param v A numeric or character vector.
 #' @return The mode of `v`.
@@ -343,28 +343,29 @@
 #' It is used in the code for table_2_4-table_2_5 and figure_2_1-figure_2_4. 
 #' An EQ-5D health state is deemed to be `better` than another if it is better on at least one dimension and is no worse on any other dimension.
 #' An EQ-5D health state is deemed to be `worse` than another if it is worse in at least one dimension and is no better in any other dimension.
-#' @param df A data frame with EQ-5D states and variables to group by. The dataset is assumed to be have been ordered correctly.
-#' @param group_by Character vector of variables to group by
+#' @param df A data frame with EQ-5D states and follow-up variable. The dataset is assumed to be have been ordered correctly.
+#' @param level_fu_1 Value of the first (i.e. earliest) follow-up. Would normally be defined as levels_fu[1].
 #' @param add_noprobs Logical value indicating whether to include a separate classification for those without problems (default is FALSE)
 #' @return A data frame with PCHC value for each combination of the grouping variables. 
 #' If 'add_noprobs' is TRUE, a separate classification for those without problems is also included.
 #' @examples
 #' df <- data.frame(id = c(1, 1, 2, 2),
+#'                  fu = c(1, 2, 1, 2),
 #'                  mobility = c(1, 1, 1, 1),
 #'                  selfcare = c(1, 1, 5, 1),
 #'                  usualact = c(1, 1, 4, 3),
 #'                  paindisc = c(1, 1, 1, 3),
 #'                  anxietyd = c(1, 1, 1, 1))
-#' .pchc(df, c("id"), add_noprobs = TRUE)
+#' .pchc(df, level_fu_1 = 1, add_noprobs = TRUE)
 #' @export
 #' 
-.pchc <- function(df, group_by, add_noprobs = FALSE) {
+.pchc <- function(df, level_fu_1, add_noprobs = FALSE) {
   
   levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
   
   # initialise positive, negative & zero differences
   df <- df %>%
-    mutate(better = 0, worse = 0, same = 0)
+    mutate(better = 0, worse = 0)
   
   for (dom in levels_eq5d) {
     # new column names
@@ -372,16 +373,15 @@
     
     # calculate difference: previous - current
     df <- df %>%
-      group_by_at(group_by) %>%
       mutate(!!sym(dom_diff) := lag(!!sym(dom)) - !!sym(dom)) %>%
+      # replace entry from 1st follow-up with NA
+      mutate(!!sym(dom_diff) := case_when(fu == level_fu_1 ~ NA_real_,
+                                          TRUE ~ !!sym(dom_diff))) %>%
       mutate(
         # contribution to positive differences
         better = better + (!!sym(dom_diff) > 0),
         # contribution to negative differences
-        worse = worse + (!!sym(dom_diff) < 0),
-        # contribution to zero differences
-        # this is not needed but keep for check
-        same = same + (!!sym(dom_diff) == 0))
+        worse = worse + (!!sym(dom_diff) < 0))
   }
   
   # classify each combination
@@ -527,9 +527,9 @@
   return(retval)
 }
 
-#' Wrapper to calculate summary mean with 95% confidence interval
+#' Wrapper to calculate summary mean with 95\% confidence interval
 #' 
-#' This internal function calculates summary mean and 95% confidence interval of the utility variable, which can also be grouped.
+#' This internal function calculates summary mean and 95\% confidence interval of the utility variable, which can also be grouped.
 #' The function is used in Figures 4.2-4.4.
 #'
 #' @param df A data frame containing a `utility` column.
@@ -538,7 +538,7 @@
 #' examples
 #' df <- data.frame(group = c("A", "A", "B", "B"), 
 #'                  utility = c(0.5, 0.7, 0.8, 0.9))
-#' .summary_table_4_4(df, group_by = "group")
+#' .summary_mean_ci(df, group_by = "group")
 #' @export
 #'
 .summary_mean_ci <- function(df, group_by) {

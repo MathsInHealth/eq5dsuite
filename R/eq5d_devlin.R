@@ -285,7 +285,7 @@ table_2_4 <- function(df,
   ### analysis ###
   
   # calculate change
-  df <- .pchc(df = df, group_by = c("id", "groupvar")) %>%
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1]) %>%
     filter(!is.na(state)) %>%
     mutate(state = 
              factor(state,
@@ -372,7 +372,7 @@ table_2_5 <- function(df,
   ### analysis ###
   
   # calculate change
-  df <- .pchc(df = df, group_by = c("id", "groupvar"), add_noprobs = TRUE) %>%
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1], add_noprobs = TRUE) %>%
     filter(!is.na(state))
   
   # separate out those with problems & calculate percentages
@@ -460,16 +460,19 @@ table_2_6 <- function(df,
   
   # calculate change
   levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  level_fu_1 <- levels_fu[1]
   
   df_diff <- df %>%
     # reshape into a long format
     pivot_longer(cols = mobility:anxietyd, names_to = "domain") %>%
     select(domain, id, fu, value) %>%
     arrange(domain, id, fu) %>%
-    group_by(domain, id) %>%
     # calculate lagged difference
     mutate(diff = lag(value) - value,
            str = str_c(lag(value), "-", value)) %>%
+    # replace entry from 1st follow-up with NA
+    mutate(diff = case_when(fu == level_fu_1 ~ NA_real_,
+                            TRUE ~ diff)) %>%
     # remove NAs
     filter(!is.na(diff)) %>%
     # classify the difference
@@ -1144,7 +1147,7 @@ figure_2_1 <- function(df,
   ### analysis ###
   
   # calculate change
-  df <- .pchc(df = df, group_by = c("id"), add_noprobs = TRUE) %>%
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1], add_noprobs = TRUE) %>%
     filter(!is.na(state)) %>%
     mutate(state_noprobs = 
              factor(state_noprobs,
@@ -1184,7 +1187,7 @@ figure_2_1 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.2: Percentage of respondents who improved overall by the dimensions (%)
+#' Figure 2.2: Percentage of respondents who improved overall by the dimensions (\%)
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1233,7 +1236,7 @@ figure_2_2 <- function(df,
   ### analysis ###
   
   # calculate change
-  df <- .pchc(df = df, group_by = c("id")) %>%
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1]) %>%
     filter(!is.na(state))
   
   # summarise by name_groupvar & state
@@ -1263,7 +1266,7 @@ figure_2_2 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.3: Percentage of respondents who worsened overall by the dimensions (%)
+#' Figure 2.3: Percentage of respondents who worsened overall by the dimensions (\%)
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1312,7 +1315,7 @@ figure_2_3 <- function(df,
   ### analysis ###
   
   # calculate change
-  df <- .pchc(df = df, group_by = c("id")) %>%
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1]) %>%
     filter(!is.na(state))
   
   # summarise by name_groupvar & state
@@ -1342,7 +1345,7 @@ figure_2_3 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (%)
+#' Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (\%)
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1391,7 +1394,7 @@ figure_2_4 <- function(df,
   ### analysis ###
   
   # calculate change
-  df <- .pchc(df = df, group_by = c("id")) %>%
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1]) %>%
     filter(!is.na(state))
   
   # read fu values
@@ -1691,7 +1694,7 @@ figure_3_1 <- function(df, name_vas = NULL){
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 3.1: Mid-point EQ VAS scores
+#' Figure 3.2: Mid-point EQ VAS scores
 #' 
 #' @param df Data frame with the VAS column
 #' @param name_vas Character string for the VAS column
@@ -1730,7 +1733,7 @@ figure_3_2 <- function(df, name_vas = NULL){
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.2: EQ-5D values by timepoints: mean values and 95% confidence intervals
+#' Figure 4.2: EQ-5D values by timepoints: mean values and 95\% confidence intervals
 #' 
 #' @param df Data frame with the VAS columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1804,7 +1807,7 @@ figure_4_2 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.3: Mean EQ-5D values and 95% confidence intervals: all vs by groupvar
+#' Figure 4.3: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar
 #' 
 #' @param df Data frame with the EQ-5D and grouping columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
