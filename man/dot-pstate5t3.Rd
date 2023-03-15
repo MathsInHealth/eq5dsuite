@@ -4,7 +4,7 @@
 \alias{.pstate5t3}
 \title{.pstate5t3}
 \usage{
-.pstate5t3(.EQxwprob)
+.pstate5t3(probs = .EQxwprob)
 }
 \arguments{
 \item{.EQxwprob}{15 x 5 matrix with probabilities per level/dimension, typically saved in .EQxwprob}
