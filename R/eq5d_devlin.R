@@ -123,7 +123,7 @@ table_2_1 <- function(df,
     select(-n_total)
   
   # combine and tidy up
-  levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
   retval <- bind_rows(
     summary_dim, 
     summary_total, 
@@ -459,12 +459,12 @@ table_2_6 <- function(df,
   ### analysis ###
   
   # calculate change
-  levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
   level_fu_1 <- levels_fu[1]
   
   df_diff <- df %>%
     # reshape into a long format
-    pivot_longer(cols = mobility:anxietyd, names_to = "domain") %>%
+    pivot_longer(cols = mo:ad, names_to = "domain") %>%
     select(domain, id, fu, value) %>%
     arrange(domain, id, fu) %>%
     # calculate lagged difference
@@ -1240,11 +1240,11 @@ figure_2_2 <- function(df,
     filter(!is.na(state))
   
   # summarise by name_groupvar & state
-  levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "da")
   plot_data <- df %>%
     filter(state == "Improve") %>%
-    select(fu, mobility_diff:anxietyd_diff) %>%
-    pivot_longer(cols = mobility_diff:anxietyd_diff) %>%
+    select(fu, mo_diff:ad_diff) %>%
+    pivot_longer(cols = mo_diff:ad_diff) %>%
     group_by(fu, name) %>%
     summarise(n = sum(value > 0), n_total = n()) %>%
     mutate(p = n / n_total) %>%
@@ -1319,11 +1319,11 @@ figure_2_3 <- function(df,
     filter(!is.na(state))
   
   # summarise by name_groupvar & state
-  levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
   plot_data <- df %>%
     filter(state == "Worsen") %>%
-    select(fu, mobility_diff:anxietyd_diff) %>%
-    pivot_longer(cols = mobility_diff:anxietyd_diff) %>%
+    select(fu, mo_diff:ad_diff) %>%
+    pivot_longer(cols = mo_diff:ad_diff) %>%
     group_by(fu, name) %>%
     summarise(n = sum(value < 0), n_total = n()) %>%
     mutate(p = n / n_total) %>%
@@ -1403,12 +1403,12 @@ figure_2_4 <- function(df,
   levels_fu_change <- c(str_c("Improve", ": ", levels_fu),
                         str_c("Worsen", ": ", levels_fu))
   
-  levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
   plot_data <- df %>%
     ungroup() %>%
     filter(state == "Mixed change") %>%
-    select(fu, mobility_diff:anxietyd_diff) %>%
-    pivot_longer(cols = mobility_diff:anxietyd_diff) %>%
+    select(fu, mo_diff:ad_diff) %>%
+    pivot_longer(cols = mo_diff:ad_diff) %>%
     group_by(fu, name) %>%
     summarise(n_improve = sum(value > 0), n_worsen = sum(value < 0), n_total = n()) %>%
     mutate(Improve = n_improve / n_total, Worsen = n_worsen / n_total) %>%

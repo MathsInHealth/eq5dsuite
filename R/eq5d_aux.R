@@ -21,8 +21,8 @@
   if ("names_eq5d" %in% names_list) {
     names_eq5d <- args$names_eq5d
     if (is.null(names_eq5d)) {
-      message("Argument `names_eq5d` not supplied. Default column names will be used: mobility, selfcare, usualact, paindisc, anxietyd.")
-      names_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+      message("Argument `names_eq5d` not supplied. Default column names will be used: mo, sc, ua, pd, ad")
+      names_eq5d <- c("mo", "sc", "ua", "pd", "ad")
     }
     args[["names_eq5d"]] <- names_eq5d
   }
@@ -183,17 +183,17 @@
   # all checks passed; proceed to the algorithm
   df <- df %>%
     # rename columns
-    rename(mobility = !!quo_name(names[1]),
-           selfcare = !!quo_name(names[2]),
-           usualact = !!quo_name(names[3]),
-           paindisc = !!quo_name(names[4]),
-           anxietyd = !!quo_name(names[5]))
+    rename(mo = !!quo_name(names[1]),
+           sc = !!quo_name(names[2]),
+           ua = !!quo_name(names[3]),
+           pd = !!quo_name(names[4]),
+           ad = !!quo_name(names[5]))
   
   # add additional columns if required
   if (add_state)
-    df <- df %>% mutate(state = str_c(mobility, selfcare, usualact, paindisc, anxietyd))
+    df <- df %>% mutate(state = str_c(mo, sc, ua, pd, ad))
   if (add_lss)
-    df <- df %>% mutate(lss = mobility + selfcare + usualact + paindisc + anxietyd)
+    df <- df %>% mutate(lss = mo + sc + ua + pd + d)
   if (add_lfs)
     df <- df %>% mutate(lfs = .get_lfs(s = state, eq5d_version = eq5d_version))
   if (add_utility)
@@ -351,17 +351,17 @@
 #' @examples
 #' df <- data.frame(id = c(1, 1, 2, 2),
 #'                  fu = c(1, 2, 1, 2),
-#'                  mobility = c(1, 1, 1, 1),
-#'                  selfcare = c(1, 1, 5, 1),
-#'                  usualact = c(1, 1, 4, 3),
-#'                  paindisc = c(1, 1, 1, 3),
-#'                  anxietyd = c(1, 1, 1, 1))
+#'                  mo = c(1, 1, 1, 1),
+#'                  sc = c(1, 1, 5, 1),
+#'                  ua = c(1, 1, 4, 3),
+#'                  pd = c(1, 1, 1, 3),
+#'                  ad = c(1, 1, 1, 1))
 #' .pchc(df, level_fu_1 = 1, add_noprobs = TRUE)
 #' @export
 #' 
 .pchc <- function(df, level_fu_1, add_noprobs = FALSE) {
   
-  levels_eq5d <- c("mobility", "selfcare", "usualact", "paindisc", "anxietyd")
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
   
   # initialise positive, negative & zero differences
   df <- df %>%
@@ -405,7 +405,7 @@
       # no change & 11111 at the second timepoint means 11111 at the first timepoint
       # so enough to check for 11111 at the classifications stage
       mutate(noprobs = 
-               (mobility == 1 & selfcare == 1 & usualact == 1 & paindisc == 1 & anxietyd == 1)) %>%
+               (mo == 1 & sc == 1 & ua == 1 & pd == 1 & ad == 1)) %>%
       mutate(state_noprobs = case_when((state == "No change" & noprobs) ~ "No problems",
                                          TRUE ~ state))
   }
