@@ -26,10 +26,10 @@ An EQ-5D health state is deemed to be `worse` than another if it is worse in at 
 \examples{
 df <- data.frame(id = c(1, 1, 2, 2),
                  fu = c(1, 2, 1, 2),
-                 mobility = c(1, 1, 1, 1),
-                 selfcare = c(1, 1, 5, 1),
-                 usualact = c(1, 1, 4, 3),
-                 paindisc = c(1, 1, 1, 3),
-                 anxietyd = c(1, 1, 1, 1))
+                 mo = c(1, 1, 1, 1),
+                 sc = c(1, 1, 5, 1),
+                 ua = c(1, 1, 4, 3),
+                 pd = c(1, 1, 1, 3),
+                 ad = c(1, 1, 1, 1))
 .pchc(df, level_fu_1 = 1, add_noprobs = TRUE)
 }

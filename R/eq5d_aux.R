@@ -100,9 +100,9 @@
 #' @return A data frame with an additional column named `utility` containing the calculated utility values. If the input country name is not found in the country_codes dataset, a list of available codes is printed, and subsequentyl an error message is displayed and the function stops.
 #' @examples
 #' df <- data.frame(state = c("11111", "11123", "32541"))
-#' .add_utility(df, "3L", "GB")
+#' .add_utility(df, "3L", "UK")
 #' \dontrun{
-#' .add_utility(df, "5L", "GB")
+#' .add_utility(df, "5L", "UK")
 #' }
 #' @export
 #' 
@@ -114,7 +114,7 @@
   country_code <- .fixCountries(countries = country, EQvariant = eq5d_version)
   if (is.na(country_code)) {
     message('No valid countries listed. These value sets are currently available.')
-    eqxwr_display(version = eq5d_version)
+    eqvs_display(version = eq5d_version)
     stop('Stopping.')
   }
   
@@ -169,16 +169,32 @@
   df_eq5d <- df %>%
     # leave only required columns
     select(!!!syms(names)) 
-  if (sum(sapply(df_eq5d, function(x) all(is.numeric(x)))) != 5)
-    stop("All columns must be in a numeric format. Stopping.")
-  # confirm integers only
-  if (sum(sapply(df_eq5d, function(x) all(floor(x[!is.na(x)]) == x[!is.na(x)]))) != 5)
-    stop("Colums can only contain integers or NAs. Stopping.")
+  
+  x <- as.matrix(df_eq5d)
+  xorig <- x
+  x[,] <- as.integer(x)
+  if(c(eq5d_version %in% c('3L', 'Y3L', 'XWR'),0)[1]) {
+    x[!x %in% 1:3] <- NA
+  } else {
+    x[!x %in% 1:5] <- NA
+  } 
+  if(sum(is.na(as.vector(x)))>sum(is.na(as.vector(xorig)))) warning(paste0(sum(is.na(as.vector(x)))>sum(is.na(as.vector(xorig))), " observations were coerced to NAs as they were not interpretable as integer values in the range allowed by the EQ-5D descriptive system."))
+  df_eq5d[,] <- x
+  
+  # 
+  # 
+  # if (sum(sapply(df_eq5d, function(x) all(is.numeric(x)))) != 5)
+  #   stop("All columns must be in a numeric format. Stopping.")
+  # # confirm integers only
+  # if (sum(sapply(df_eq5d, function(x) all(floor(x[!is.na(x)]) == x[!is.na(x)]))) != 5)
+  #   stop("Colums can only contain integers or NAs. Stopping.")
   
   # confirm EQ-5D version if required
   if (!is.null(eq5d_version))
-    if (!(tolower(eq5d_version) %in% c("3l", "5l")))
-      stop("EQ-5D version can only be 3L, 3l, 5L or 5l. Stopping.")
+    if (!(tolower(eq5d_version) %in% c("3l", "5l", 'y3l')))
+      stop("EQ-5D version can only be 3L, 3l, Y3L, y3l, 5L or 5l. Stopping.")
+  
+  df[, names] <- df_eq5d
   
   # all checks passed; proceed to the algorithm
   df <- df %>%
@@ -193,7 +209,7 @@
   if (add_state)
     df <- df %>% mutate(state = str_c(mo, sc, ua, pd, ad))
   if (add_lss)
-    df <- df %>% mutate(lss = mo + sc + ua + pd + d)
+    df <- df %>% mutate(lss = mo + sc + ua + pd + ad)
   if (add_lfs)
     df <- df %>% mutate(lfs = .get_lfs(s = state, eq5d_version = eq5d_version))
   if (add_utility)
@@ -246,15 +262,22 @@
 .prep_vas <- function(df, name) {
   
   # extract data
-  v <- df[, name]
-  # remove NAs
-  v <- v[!is.na(v)]
-  # confirm numeric format
-  if (!is.numeric(v))
-    stop("VAS column must be in a numeric format. Stopping.")
-  # confirm integers only
-  if (!all(floor(v) == v))
-    stop("VAS column can only contain integers or NAs. Stopping.")
+  x <- df[, name]
+  
+  
+  xorig <- x <- as.integer(x)
+  x[!vec %in% 0:100] <- NA
+  if(sum(is.na(x))>sum(is.na(xorig))) warning(paste0(sum(is.na(x))>sum(is.na(xorig)), " observations were coerced to NAs as they were not interpretable as integer values in the range allowed by the EQ-5D descriptive system."))
+  df[,name] <- x
+  
+  # # remove NAs
+  # v <- v[!is.na(v)]
+  # # confirm numeric format
+  # if (!is.numeric(v))
+  #   stop("VAS column must be in a numeric format. Stopping.")
+  # # confirm integers only
+  # if (!all(floor(v) == v))
+  #   stop("VAS column can only contain integers or NAs. Stopping.")
   
   # all checks passed; proceed to the algorithm
   df <- df %>%
@@ -336,6 +359,295 @@
   
   return(retval)
 }
+
+#' Helper function for frequency of levels by dimensions tables
+#' 
+#' @param df Data frame with the EQ-5D and follow-up columns
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param name_gr Character string for the follow-up column. If NULL, no grouping is used, and the table reports for the total population.
+#' @param levels_gr Character vector containing the order of the values in the follow-up column. 
+#' If NULL (default value), the levels will be ordered in the order of appearance in df.
+#' @param eq5d_version Version of the EQ-5D instrument
+#' @return Summary data frame.
+#' 
+.freqtab<- function(df, 
+                     names_eq5d = NULL,
+                     name_fu = NULL,
+                     levels_fu = NULL,
+                     eq5d_version = NULL) {
+  
+  ### data preparation ###
+  
+  if(is.null(name_fu)) {
+    df$`_all` <- "All"
+    name_fu <- "_all"
+  }
+  
+  # replace NULL names with defaults
+  temp <- .get_names(df = df, 
+                     names_eq5d = names_eq5d, 
+                     name_fu = name_fu, levels_fu = levels_fu,
+                     eq5d_version = eq5d_version)
+  names_eq5d <- temp$names_eq5d
+  name_fu <- temp$name_fu
+  levels_fu <- temp$levels_fu
+  eq5d_version <- temp$eq5d_version
+  # check existence of columns 
+  names_all <- c(names_eq5d, name_fu)
+  if (!all(names_all %in% colnames(df)))
+    stop("Provided column names not in dataframe. Stopping.")
+  # all columns defined and exist; only leave relevant columns now
+  df <- df %>%
+    select(!!!syms(names_all)) 
+  # further checks and data preparation
+  df <- .prep_eq5d(df = df, names = names_eq5d, eq5d_version = eq5d_version)
+  df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
+  
+  ### analysis ###
+  
+  # reshape into a long format
+  df <- df %>%
+    pivot_longer(cols = -fu, names_to = "eq5d", values_to = "value")
+  
+  # complete case dataset: remove NA values
+  df_cc <- df %>%
+    filter(!is.na(value))
+  
+  # summary: individual levels
+  summary_dim <- .summary_table_2_1(df = df_cc, group_by = c("eq5d", "value", "fu")) %>%
+    # tidy up the group category
+    rename(level = value) %>%
+    mutate(level = as.character(level))
+  
+  # summary: total
+  summary_total <-  .summary_table_2_1(df = df_cc, group_by = c("eq5d", "fu")) %>%
+    mutate(level = "Total")
+  
+  # summary: some problems and change
+  summary_problems <- df_cc %>%
+    # keep only relevant values
+    filter(value != 1) %>%
+    group_by(eq5d, fu) %>%
+    summarise(n = n(), .groups = "drop")
+  
+  # merge with summary_total to calculate percentages
+  summary_problems <- merge(summary_problems, 
+                            summary_total %>% select(eq5d, fu, n), 
+                            by = c("eq5d", "fu"),
+                            suffix = c("", "_total")) %>%
+    mutate(freq = n / n_total) %>%
+    # tidy up
+    select(-n_total)
+  # define the group category for subsequent linking
+  suffix <- if (eq5d_version == "3L") "2+3" else "2+3+4+5"
+  summary_problems <- summary_problems %>% 
+    mutate(level = 
+             str_c("Number reporting any problems (levels ", suffix, ")"))
+  
+  # change in numbers reporting problems since previous time point
+  summary_problems_change <- summary_problems %>%
+    # remove redundant columns
+    select(-freq, -level) %>%
+    # impose order on time
+    arrange(eq5d, factor(fu, levels = levels_fu)) %>%
+    group_by(eq5d) %>%
+    # generate lagged n
+    mutate(n_prev = lag(n)) %>%
+    # calculate change
+    mutate(n_change = n - n_prev) %>%
+    # add percentage
+    mutate(freq = n_change / n_prev) %>%
+    # tidy up
+    select(-n, -n_prev) %>%
+    rename(n = n_change) %>%
+    # define the group category for subsequent linking
+    mutate(level = "Change in numbers reporting problems")
+  
+  # summary: rankings
+  summary_rank <- summary_problems_change %>%
+    select(-n, -level) %>%
+    group_by(fu) %>%
+    # remove NA entries
+    filter(!is.na(freq)) %>%
+    # define rank
+    mutate(n = rank(freq)) %>%
+    # define the group category for subsequent linking
+    mutate(level = "Rank of dimensions in terms of % changes")
+  
+  summary_rank$freq <- NA
+  
+  # summary: missing data
+  summary_na <- df %>%
+    group_by(eq5d, fu) %>%
+    summarise(n = sum(is.na(value)), n_total = n(), .groups = "drop") %>%
+    # calculate percentage
+    mutate(freq = n / n_total) %>%
+    # define the group category for subsequent linking
+    mutate(level = "Missing data") %>%
+    # tidy up
+    select(-n_total)
+  
+  # combine and tidy up
+  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
+  retval <- bind_rows(
+    summary_dim, 
+    summary_total, 
+    summary_problems, 
+    if(any(!is.na(summary_problems_change$n))) summary_problems_change, 
+    summary_rank, 
+    summary_na) %>%
+    # reshape into a wide format 
+    mutate(eq5d = factor(eq5d, levels = levels_eq5d)) %>%
+    arrange(eq5d) %>%
+    pivot_wider(id_cols = level, 
+                names_from = c("eq5d", "fu"), 
+                values_from = c("n", "freq"),
+                names_glue = "{.value}_{fu}_{eq5d}") %>%
+    # arrange rows
+    arrange(level = factor(level, 
+                           levels = c(sort(unique(summary_dim$level)), 
+                                      unique(summary_total$level),
+                                      unique(summary_problems$level),
+                                      unique(summary_problems_change$level),
+                                      unique(summary_rank$level),
+                                      unique(summary_na$level)))) %>%
+    # arrange columns
+    select(level, !!!syms(apply(expand.grid(c("n", "freq"), as.character(levels_fu), levels_eq5d), 
+                                1, paste, collapse = "_")))
+  
+  # return value
+  return(retval)
+}
+
+
+
+#' .pchctab: Changes in health according to the PCHC (Paretian Classification of Health Change)
+#' 
+#' @param df Data frame with the EQ-5D, grouping, id and follow-up columns
+#' @param name_id Character string for the patient id column
+#' @param name_groupvar Character string for the grouping column
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param name_fu Character string for the follow-up column
+#' @param levels_fu Character vector containing the order of the values in the follow-up column. 
+#' If NULL (default value), the levels will be ordered in the order of appearance in df.
+#' @return Summary data frame
+#' @examples
+#' .pchctab(df = example_data, name_groupvar = "surgtype", name_id = "id")
+#' @export
+#'
+.pchctab <- function(df,
+                  name_id,
+                  name_groupvar,
+                  names_eq5d = NULL,
+                  name_fu = NULL, 
+                  levels_fu = NULL,
+                  add_noprobs = FALSE) {
+  
+  ### data preparation ###
+  
+  # replace NULL names with defaults
+  temp <- .get_names(df = df, 
+                     names_eq5d = names_eq5d, 
+                     name_fu = name_fu, levels_fu = levels_fu)
+  names_eq5d <- temp$names_eq5d
+  name_fu <- temp$name_fu
+  levels_fu <- temp$levels_fu
+  # check existence of columns 
+  names_all <- c(name_groupvar, name_id, names_eq5d, name_fu)
+  if (!all(names_all %in% colnames(df)))
+    stop("Provided column names not in dataframe. Stopping.")
+  
+  
+  # Enforce EQ-5D levels
+  tmp <- as.matrix(df[, names_eq5d])
+  tmp[,] <- as.integer(tmp)
+  tmp[!tmp %in% 1:5] <- NA
+  df[, names_eq5d] <- tmp
+  rm(tmp)
+  
+  
+  
+  # all columns defined and exist; only leave relevant columns now
+  df <- df %>%
+    select(!!!syms(names_all)) 
+  # further checks and data preparation
+  df <- df %>%
+    rename(id = !!quo_name(name_id),
+           groupvar = !!quo_name(name_groupvar))
+  df <- .prep_eq5d(df = df, names = names_eq5d)
+  df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
+  # sort by id - groupvar - time
+  df <- df %>%
+    arrange(id, groupvar, fu)
+  # check uniqueness of id-groupvar-fu combinations
+  .check_uniqueness(df, group_by = c("id", "groupvar", "fu"))
+  
+  
+  
+  
+  ### analysis ###
+  
+  uids <- data.frame(id = unique(df$id))
+  uids$groupvar <- df$groupvar[match(uids$id, df$id)]
+  lvls <- structure(.Data = levels(df$fu), .Names = levels(df$fu))
+  grps <- structure(.Data = unique(df$groupvar), .Names = unique(df$groupvar))
+  grpr <- lapply(grps, function(grp) which(uids$groupvar == grp))
+  
+  idstates <- lapply(lvls, FUN = function(thisfu) {
+    tmp <- df[df$fu == thisfu, c("id", names_eq5d)]
+    as.matrix(tmp[match(uids$id, tmp$id),2:6])
+  })
+  
+  progress <- as.data.frame(lapply(structure(.Data = 1:length(lvls), .Names = lvls), FUN = function(thisfu) {
+    if(thisfu == 1) return(rep(NA, NROW(uids)))
+    tmp <- sign(idstates[[thisfu]]-idstates[[thisfu-1]])
+    factor(1*(rowSums(1*(tmp == 1))>0)-1*(rowSums(1*(tmp == -1))>0)+2*(rowSums(tmp == 0)==5), levels = c(2, -1, 1, 0), labels = c("No change", "Improve", "Worsen", "Mixed change"))   
+    
+  }))
+  
+  
+  problems <- as.data.frame(lapply(idstates, function(idstate) {
+    factor(2-1*(rowSums(idstate>1)>0), labels = c("Total with problems", "No problems"))
+  }))
+  
+  colnames(progress) <- colnames(problems)<- lvls
+  
+  tmp <- do.call(rbind,lapply(grps, FUN = function(grp) {
+    cbind(groupvar = grp, do.call(rbind, lapply(lvls[-1], function(lvl) {
+      tmp <- cbind(fu = lvl, 
+                   rbind(as.data.frame(table(progress[grpr[[grp]],lvl], useNA = 'always')),
+                         if(add_noprobs) as.data.frame(table(problems[grpr[[grp]],lvl], useNA = 'no'))))
+      colnames(tmp) <- c('fu', 'state', 'n')
+      
+      tmp$p <- c(tmp$n/sum(tmp$n[-which(is.na(tmp$state))]))
+      tmp$p[which(is.na(tmp$state))] <- NA
+      tmp <- rbind(tmp, data.frame(fu = lvl, state = 'Grand total', n = sum(tmp$n[1:4]), p = 1))
+      tmp
+    })))
+  }))
+  
+  tmp$state <- factor(tmp$state, levels = c(levels(tmp$state), "Missing/NA"))
+  tmp$state[is.na(tmp$state)] <- 'Missing/NA'
+  
+  
+  # combine & tidy up
+  retval <- tmp %>%
+    # reshape into a long format to subsequently impose order on columns in pivot_wider
+    pivot_longer(cols = n:p) %>%
+    # finally reshape wider
+    pivot_wider(id_cols = state, 
+                names_from = c(groupvar, fu, name), 
+                values_from = value,
+                # fill NAs with 0
+                values_fill = list(value = 0))
+  #retval <- retval[c(1:4,6,5),]
+  
+  # return value
+  return(retval)
+}
+
+
+
 
 #' Wrapper to determine Paretian Classification of Health Change (PCHC)
 #' 
@@ -516,10 +828,11 @@
   retval <- df %>%
     group_by_at(group_by) %>%
     summarise(Mean = mean(utility, na.rm = TRUE),
-              `Standard error` = sd(utility, na.rm = TRUE) / sqrt(sum(is.na(utility))),
+              `Standard error` = sd(utility, na.rm = TRUE) / sqrt(sum(!is.na(utility))),
               `25th Percentile` = quantile(utility, probs = 0.25, na.rm = TRUE),
               `50th Percentile (median)` = median(utility, na.rm = TRUE),
               `75th Percentile` = quantile(utility, probs = 0.75, na.rm = TRUE),
+              n = sum(!is.na(utility)),
               Missing = sum(is.na(utility)),
               .groups = "drop"
     )

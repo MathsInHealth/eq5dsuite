@@ -21,8 +21,8 @@ This function adds utility values to a data frame based on a specified version o
 }
 \examples{
 df <- data.frame(state = c("11111", "11123", "32541"))
-.add_utility(df, "3L", "GB")
+.add_utility(df, "3L", "UK")
 \dontrun{
-.add_utility(df, "5L", "GB")
+.add_utility(df, "5L", "UK")
 }
 }

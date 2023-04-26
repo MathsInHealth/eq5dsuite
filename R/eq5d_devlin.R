@@ -1,8 +1,47 @@
-#' Table 2.1: Frequency of levels by dimension of 'some problems'
+#' Table 1.1.1: Frequency of levels by dimensions, cross-sectional
 #' 
 #' @param df Data frame with the EQ-5D and follow-up columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
-#' @param name_fu Character string for the follow-up column
+#' @param eq5d_version Version of the EQ-5D instrument
+#' @return Summary data frame.
+#' @examples
+#' table_2_1(df = example_data)
+#' table_2_1(df = example_data, eq5d_version = "3L")
+#' @export
+#' 
+table_1_1_1<- function(df, 
+                      names_eq5d = NULL,
+                      eq5d_version = NULL) {
+  do.call(.freqtab, as.list(match.call()[-1]))
+}
+
+
+#' Table 1.1.2: Frequency of levels by dimensions, separated by category
+#' 
+#' @param df Data frame with the EQ-5D and follow-up columns
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param name_cat Character string for the category  column. If NULL, no grouping is used, and the table reports for the total population, i.e. equal to table 1.1.1.
+#' @param levels_cat Character vector containing the order of the values in the category column, if the wish is to have these presented in a particular order. 
+#' If NULL (default value), unless the variable is a factor, the levels will be ordered in the order of appearance in df.
+#' @param eq5d_version Version of the EQ-5D instrument
+#' @return Summary data frame.
+#' @examples
+#' table_1_1_2(df = example_data, name_cat = "surgtype")
+#' @export
+#' 
+table_1_1_2<- function(df, 
+                       names_eq5d = NULL,
+                       name_cat = NULL,
+                       levels_cat = NULL,
+                       eq5d_version = NULL) {
+  .freqtab(df, names_eq5d, name_cat, levels_cat, eq5d_version)
+}
+
+#' Table 1.2.1: Frequency of levels by dimensions, by follow-up
+#' 
+#' @param df Data frame with the EQ-5D and follow-up columns
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param name_fu Character string for the follow-up column. If NULL, the function will check if there is a column named "follow-up" or "fu", in which case the first of those will be used.
 #' @param levels_fu Character vector containing the order of the values in the follow-up column. 
 #' If NULL (default value), the levels will be ordered in the order of appearance in df.
 #' @param eq5d_version Version of the EQ-5D instrument
@@ -12,146 +51,18 @@
 #' table_2_1(df = example_data, name_fu = "month")
 #' @export
 #' 
-table_2_1 <- function(df, 
-                      names_eq5d = NULL,
-                      name_fu = NULL,
-                      levels_fu = NULL,
-                      eq5d_version = NULL) {
+table_1_2_1<- function(df, 
+                       names_eq5d = NULL,
+                       name_fu = NULL,
+                       levels_fu = NULL,
+                       eq5d_version = NULL) {
+  mc <- as.list(match.call()[-1])
   
-  ### data preparation ###
-  
-  # replace NULL names with defaults
-  temp <- .get_names(df = df, 
-                     names_eq5d = names_eq5d, 
-                     name_fu = name_fu, levels_fu = levels_fu,
-                     eq5d_version = eq5d_version)
-  names_eq5d <- temp$names_eq5d
-  name_fu <- temp$name_fu
-  levels_fu <- temp$levels_fu
-  eq5d_version <- temp$eq5d_version
-  # check existence of columns 
-  names_all <- c(names_eq5d, name_fu)
-  if (!all(names_all %in% colnames(df)))
-    stop("Provided column names not in dataframe. Stopping.")
-  # all columns defined and exist; only leave relevant columns now
-  df <- df %>%
-    select(!!!syms(names_all)) 
-  # further checks and data preparation
-  df <- .prep_eq5d(df = df, names = names_eq5d, eq5d_version = eq5d_version)
-  df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
-  
-  ### analysis ###
-  
-  # reshape into a long format
-  df <- df %>%
-    pivot_longer(cols = -fu, names_to = "eq5d", values_to = "value")
-  
-  # complete case dataset: remove NA values
-  df_cc <- df %>%
-    filter(!is.na(value))
-  
-  # summary: individual levels
-  summary_dim <- .summary_table_2_1(df = df_cc, group_by = c("eq5d", "value", "fu")) %>%
-    # tidy up the group category
-    rename(level = value) %>%
-    mutate(level = as.character(level))
-  
-  # summary: total
-  summary_total <-  .summary_table_2_1(df = df_cc, group_by = c("eq5d", "fu")) %>%
-    mutate(level = "Total")
-  
-  # summary: some problems and change
-  summary_problems <- df_cc %>%
-    # keep only relevant values
-    filter(value != 1) %>%
-    group_by(eq5d, fu) %>%
-    summarise(n = n(), .groups = "drop")
-  
-  # merge with summary_total to calculate percentages
-  summary_problems <- merge(summary_problems, 
-                            summary_total %>% select(eq5d, fu, n), 
-                            by = c("eq5d", "fu"),
-                            suffix = c("", "_total")) %>%
-    mutate(freq = n / n_total) %>%
-    # tidy up
-    select(-n_total)
-  # define the group category for subsequent linking
-  suffix <- if (eq5d_version == "3L") "2+3" else "2+3+4+5"
-  summary_problems <- summary_problems %>% 
-    mutate(level = 
-             str_c("Number reporting some problems (levels ", suffix, ")"))
-  
-  # change in numbers reporting problems since previous time point
-  summary_problems_change <- summary_problems %>%
-    # remove redundant columns
-    select(-freq, -level) %>%
-    # impose order on time
-    arrange(eq5d, factor(fu, levels = levels_fu)) %>%
-    group_by(eq5d) %>%
-    # generate lagged n
-    mutate(n_prev = lag(n)) %>%
-    # calculate change
-    mutate(n_change = n - n_prev) %>%
-    # add percentage
-    mutate(freq = n_change / n_prev) %>%
-    # tidy up
-    select(-n, -n_prev) %>%
-    rename(n = n_change) %>%
-    # define the group category for subsequent linking
-    mutate(level = "Change in numbers reporting problems")
-  
-  # summary: rankings
-  summary_rank <- summary_problems_change %>%
-    select(-n, -level) %>%
-    group_by(fu) %>%
-    # remove NA entries
-    filter(!is.na(freq)) %>%
-    # define rank
-    mutate(n = rank(freq)) %>%
-    # define the group category for subsequent linking
-    mutate(level = "Rank of dimensions in terms of % changes")
-  
-  # summary: missing data
-  summary_na <- df %>%
-    group_by(eq5d, fu) %>%
-    summarise(n = sum(is.na(value)), n_total = n(), .groups = "drop") %>%
-    # calculate percentage
-    mutate(freq = n / n_total) %>%
-    # define the group category for subsequent linking
-    mutate(level = "Missing data") %>%
-    # tidy up
-    select(-n_total)
-  
-  # combine and tidy up
-  levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
-  retval <- bind_rows(
-    summary_dim, 
-    summary_total, 
-    summary_problems, 
-    summary_problems_change, 
-    summary_rank, 
-    summary_na) %>%
-    # reshape into a wide format 
-    mutate(eq5d = factor(eq5d, levels = levels_eq5d)) %>%
-    arrange(eq5d) %>%
-    pivot_wider(id_cols = level, 
-                names_from = c("eq5d", "fu"), 
-                values_from = c("n", "freq"),
-                names_glue = "{.value}_{fu}_{eq5d}") %>%
-    # arrange rows
-    arrange(level = factor(level, 
-                           levels = c(sort(unique(summary_dim$level)), 
-                                      unique(summary_total$level),
-                                      unique(summary_problems$level),
-                                      unique(summary_problems_change$level),
-                                      unique(summary_rank$level),
-                                      unique(summary_na$level)))) %>%
-    # arrange columns
-    select(level, !!!syms(apply(expand.grid(c("n", "freq"), as.character(levels_fu), levels_eq5d), 
-                                1, paste, collapse = "_")))
-  
-  # return value
-  return(retval)
+  if(is.null(name_fu)){
+    if("follow-up" %in% colnames(df)) mc$name_fu <- "follow_up"
+    if("fu" %in% colnames(df)) mc$name_fu <- "fu"
+  }
+  do.call(.freqtab, mc)
 }
 
 #' Table 2.3: Prevalence of the 10 most frequently observed self-reported health states
@@ -233,92 +144,7 @@ table_2_3 <- function(df,
   return(retval)
 }
 
-#' Table 2.4: Changes in health according to the PCHC (Paretian Classification of Health Change)
-#' 
-#' @param df Data frame with the EQ-5D, grouping, id and follow-up columns
-#' @param name_id Character string for the patient id column
-#' @param name_groupvar Character string for the grouping column
-#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
-#' @param name_fu Character string for the follow-up column
-#' @param levels_fu Character vector containing the order of the values in the follow-up column. 
-#' If NULL (default value), the levels will be ordered in the order of appearance in df.
-#' @return Summary data frame
-#' @examples
-#' table_2_4(df = example_data, name_groupvar = "surgtype", name_id = "id")
-#' @export
-#'
-table_2_4 <- function(df,
-                      name_id,
-                      name_groupvar,
-                      names_eq5d = NULL,
-                      name_fu = NULL, 
-                      levels_fu = NULL) {
-  
-  ### data preparation ###
-  
-  # replace NULL names with defaults
-  temp <- .get_names(df = df, 
-                     names_eq5d = names_eq5d, 
-                     name_fu = name_fu, levels_fu = levels_fu)
-  names_eq5d <- temp$names_eq5d
-  name_fu <- temp$name_fu
-  levels_fu <- temp$levels_fu
-  # check existence of columns 
-  names_all <- c(name_groupvar, name_id, names_eq5d, name_fu)
-  if (!all(names_all %in% colnames(df)))
-    stop("Provided column names not in dataframe. Stopping.")
-  # all columns defined and exist; only leave relevant columns now
-  df <- df %>%
-    select(!!!syms(names_all)) 
-  # further checks and data preparation
-  df <- df %>%
-    rename(id = !!quo_name(name_id),
-           groupvar = !!quo_name(name_groupvar))
-  df <- .prep_eq5d(df = df, names = names_eq5d)
-  df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
-  # sort by id - groupvar - time
-  df <- df %>%
-    arrange(id, groupvar, fu)
-  # check uniqueness of id-groupvar-fu combinations
-  .check_uniqueness(df, group_by = c("id", "groupvar", "fu"))
-  
-  ### analysis ###
-  
-  # calculate change
-  df <- .pchc(df = df, level_fu_1 = levels_fu[1]) %>%
-    filter(!is.na(state)) %>%
-    mutate(state = 
-             factor(state,
-                    levels = c("Improve", "Mixed change", "No change", "Worsen")))
-  
-  # summarise by groupvar, fu & state
-  summary_dim <- df %>%
-    group_by(groupvar, fu, state) %>%
-    summarise(n = n()) %>%
-    mutate(p = n / sum(n)) %>%
-    ungroup()
-  
-  # summarise totals
-  summary_total <- summary_dim %>%
-    group_by(groupvar, fu) %>%
-    summarise(n = sum(n), p = sum(p), .groups = "drop") %>%
-    # add label
-    mutate(state = "Grand Total") 
-  
-  # combine & tidy up
-  retval <- bind_rows(summary_dim, summary_total) %>%
-    # reshape into a long format to subsequently impose order on columns in pivot_wider
-    pivot_longer(cols = n:p) %>%
-    # finally reshape wider
-    pivot_wider(id_cols = state, 
-                names_from = c(groupvar, fu, name), 
-                values_from = value,
-                # fill NAs with 0
-                values_fill = list(value = 0))
-  
-  # return value
-  return(retval)
-}
+
 
 #' Table 2.5: Changes in health according to the PCHC, taking account of those with no problems
 #' 
@@ -469,7 +295,7 @@ table_2_6 <- function(df,
     arrange(domain, id, fu) %>%
     # calculate lagged difference
     mutate(diff = lag(value) - value,
-           str = str_c(lag(value), "-", value)) %>%
+           level_change = str_c(lag(value), "-", value)) %>%
     # replace entry from 1st follow-up with NA
     mutate(diff = case_when(fu == level_fu_1 ~ NA_real_,
                             TRUE ~ diff)) %>%
@@ -485,7 +311,7 @@ table_2_6 <- function(df,
   
   # % total
   p_total <- df_diff %>%
-    group_by(domain, diff, str) %>%
+    group_by(domain, diff, level_change) %>%
     summarise(n = n()) %>%
     group_by(domain) %>%
     mutate(p = n / sum(n)) %>%
@@ -493,21 +319,21 @@ table_2_6 <- function(df,
   
   # % type
   p_type <- df_diff %>%
-    group_by(domain, diff, str) %>%
+    group_by(domain, diff, level_change) %>%
     summarise(n = n()) %>%
     mutate(p = n / sum(n)) %>%
     mutate(type = "% Type")
   
   # combine and tidy up
   retval <- rbind(p_total, p_type) %>%
-    select(domain, type, diff, str, p) %>%
-    pivot_wider(id_cols = c(diff, str), names_from = c(domain, type), values_from = p,
+    select(domain, type, diff, level_change, p) %>%
+    pivot_wider(id_cols = c(diff, level_change), names_from = c(domain, type), values_from = p,
                 values_fill = list(p = 0)) %>%
     # arrange rows
     mutate(diff = factor(diff, levels = c("No change", "Better", "Worse"))) %>%
-    arrange(diff, str) %>%
+    arrange(diff, level_change) %>%
     # arrange rows
-    select(diff, str, 
+    select(diff, level_change, 
            !!!syms(apply(expand_grid(levels_eq5d, c("% Total", "% Type")), 
                          1, paste, collapse = "_")))
   
@@ -756,8 +582,13 @@ table_2_10 <- function(df,
     # remove missing data
     filter(!is.na(utility)) %>%
     group_by(lfs) %>%
-    summarise(Mean = mean(utility), 
-              Median = median(utility)) %>%
+    summarise(Frequency = length(utility),
+              Mean = mean(utility), 
+              SD = sd(utility),
+              Median = median(utility),
+              Minimum = min(utility),
+              Maximum = max(utility),
+              Range = max(utility)-min(utility)) %>%
     # tidy up
     arrange(lfs) %>%
     rename(LFS = lfs)
