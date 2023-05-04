@@ -1,7 +1,7 @@
 Package: eq5dsuite
 Type: Package
 Title: A suite of functions for manipulating and analysing EQ-5D data
-Version: 0.3.2
+Version: 0.3.3
 Author: Kim Rand, Iryna Schlackow, Anabel Estévez-Carrillo
 Maintainer: MathsInHealth <krand@mathsinhealth.com>
 Description: The package contains a suite of functions to manipulate EQ-5D data, including crosswalk (i.e. mapping the EQ-5D-5L to EQ-5D-3L value sets), reverse crosswalk (i.e. mapping the EQ-5D-5L to EQ-5D-3L value sets), adding and/or removing user-defined value sets. 

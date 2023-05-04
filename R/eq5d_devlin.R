@@ -66,7 +66,7 @@ table_1_2_1<- function(df,
   do.call(.freqtab, mc)
 }
 
-#' Table 2.3: Prevalence of the 10 most frequently observed self-reported health states
+#' Table 1.1.3: Prevalence of the 10 most frequently observed self-reported health states
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -74,12 +74,12 @@ table_1_2_1<- function(df,
 #' @param n Number of most frequently observed states to display (default 10)
 #' @return Summary data frame
 #' @examples
-#' table_2_3(df = example_data)
-#' table_2_3(df = example_data, n = 5)
-#' table_2_3(df = example_data, eq5d_version = "3L")
+#' table_1_1_3(df = example_data)
+#' table_1_1_3(df = example_data, n = 5)
+#' table_1_1_3(df = example_data, eq5d_version = "3L")
 #' @export
 #'
-table_2_3 <- function(df, 
+table_1_1_3 <- function(df, 
                       names_eq5d = NULL,
                       eq5d_version = NULL,
                       n = 10) {
@@ -156,7 +156,7 @@ table_2_3 <- function(df,
   return(retval)
 }
 
-#' Table 2.4: Changes in health according to the PCHC (Paretian Classification of Health Change)
+#' Table 1.2.2: Changes in health according to the PCHC (Paretian Classification of Health Change)
 #' 
 #' @param df Data frame with the EQ-5D, grouping, id and follow-up columns
 #' @param name_id Character string for the patient id column
@@ -167,10 +167,10 @@ table_2_3 <- function(df,
 #' If NULL (default value), the levels will be ordered in the order of appearance in df.
 #' @return Summary data frame
 #' @examples
-#' table_2_4(df = example_data, name_groupvar = "surgtype", name_id = "id")
+#' table_1_2_2(df = example_data, name_groupvar = "surgtype", name_id = "id")
 #' @export
 #'
-table_2_4 <- function(df,
+table_1_2_2 <- function(df,
                       name_id,
                       name_groupvar,
                       names_eq5d = NULL,
@@ -244,7 +244,7 @@ table_2_4 <- function(df,
   return(retval)
 }
 
-#' Table 2.5: Changes in health according to the PCHC, taking account of those with no problems
+#' Table 1.2.3: Changes in health according to the PCHC, taking account of those with no problems
 #' 
 #' @param df Data frame with the EQ-5D, grouping, id and follow-up columns
 #' @param name_id Character string for the patient id column
@@ -255,10 +255,10 @@ table_2_4 <- function(df,
 #' If NULL (default value), the levels will be ordered in the order of appearance in df.
 #' @return Summary data frame
 #' @examples
-#' table_2_5(df = example_data, name_groupvar = "surgtype", name_id = "id")
+#' table_1_2_3(df = example_data, name_groupvar = "surgtype", name_id = "id")
 #' @export
 #'
-table_2_5 <- function(df, 
+table_1_2_3 <- function(df, 
                       name_id,
                       name_groupvar,
                       names_eq5d = NULL,
@@ -334,7 +334,7 @@ table_2_5 <- function(df,
   return(retval)
 }
 
-#' Table 2.6: Changes in levels in each dimension, percentages of total and of type of change
+#' Table 1.2.4: Changes in levels in each dimension, percentages of total and of type of change
 #' 
 #' @param df Data frame with the EQ-5D, id and follow-up columns
 #' @param name_id Character string for the patient id column
@@ -344,10 +344,10 @@ table_2_5 <- function(df,
 #' If NULL (default value), the levels will be ordered in the order of appearance in df.
 #' @return Summary data frame
 #' @examples
-#' table_2_6(df = example_data, name_id = "id")
+#' table_1_2_4(df = example_data, name_id = "id")
 #' @export
 #'
-table_2_6 <- function(df, 
+table_1_2_4 <- function(df, 
                       name_id,
                       names_eq5d = NULL,
                       name_fu = NULL,
@@ -439,7 +439,7 @@ table_2_6 <- function(df,
   return(retval)
 }
 
-#' Table 2.7: Summary statistics for the EQ-5D values by all the different LSSs (Level Sum Scores)
+#' Table 1.3.1: Summary statistics for the EQ-5D values by all the different LSSs (Level Sum Scores)
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -448,11 +448,11 @@ table_2_6 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_2_7(df = example_data, country = "USA")
-#' table_2_7(df = example_data, eq5d_version = "3L", country = "USA")
+#' table_1_3_1(df = example_data, country = "USA")
+#' table_1_3_1(df = example_data, eq5d_version = "3L", country = "USA")
 #' @export
 #'
-table_2_7 <- function(df, 
+table_1_3_1 <- function(df, 
                       names_eq5d = NULL,
                       eq5d_version = NULL,
                       country){
@@ -506,82 +506,18 @@ table_2_7 <- function(df,
   return(retval)
 }
 
-#' Table 2.8: Number of observations in the LFS (Level Frequency Score) according to the EQ-5D values
-#' 
-#' @param df Data frame with the EQ-5D columns
-#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
-#' @param eq5d_version Version of the EQ-5D instrument
-#' @param country A character string representing the name of the country. 
-#' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
-#' @return Summary data frame
-#' @examples
-#' table_2_8(df = example_data, country = "USA")
-#' table_2_8(df = example_data, eq5d_version = "3L", country = "USA")
-#' @export
-#'
-table_2_8 <- function(df, 
-                      names_eq5d = NULL,
-                      eq5d_version = NULL,
-                      country){
-  
-  ### data preparation ###
-  
-  # replace NULL names with defaults
-  temp <- .get_names(names_eq5d = names_eq5d, eq5d_version = eq5d_version)
-  names_eq5d <- temp$names_eq5d
-  eq5d_version <- temp$eq5d_version
-  # check existence of columns 
-  names_all <- c(names_eq5d)
-  if (!all(names_all %in% colnames(df)))
-    stop("Provided column names not in dataframe. Stopping.")
-  # all columns defined and exist; only leave relevant columns now
-  df <- df %>%
-    select(!!!syms(names_all)) 
-  # further checks and data preparation
-  df <- .prep_eq5d(df = df, names = names_eq5d, 
-                   add_state = TRUE, 
-                   add_lfs = TRUE, eq5d_version = eq5d_version, 
-                   add_utility = TRUE, country = country) %>%
-    # leave relevant columns only
-    select(lfs, utility)
-  
-  ### analysis ###
-  
-  # summarise for each utility-LFS combination
-  retval <- df %>%
-    # exclude NAs
-    filter(!is.na(lfs)) %>%
-    # summary by each utility-LFS combination
-    group_by(utility) %>%
-    count(lfs = factor(lfs), .drop = FALSE) %>%
-    # arrange by LFS to preserve order when reshaping
-    arrange(lfs) %>%
-    # reshape into wide format
-    pivot_wider(id_cols = utility, names_from = lfs, values_from = n,
-                values_fill = list(n = 0)) %>%
-    # order rows
-    arrange(utility) %>%
-    # add row totals
-    mutate(Total = sum(c_across())) %>%
-    # tidy up
-    rename(`EQ-5D Value` = utility)
-  
-  # return value
-  return(retval)
-}
-
-#' Table 2.9: Distribution of the EQ-5D states by LFS (Level Frequency Score)
+#' Table 1.3.2: Distribution of the EQ-5D states by LFS (Level Frequency Score)
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame
 #' @examples
-#' table_2_9(df = example_data)
-#' table_2_9(df = example_data, eq5d_version = "3L")
+#' table_1_3_2(df = example_data)
+#' table_1_3_2(df = example_data, eq5d_version = "3L")
 #' @export
 #'
-table_2_9 <- function(df, 
+table_1_3_2 <- function(df, 
                       names_eq5d = NULL, 
                       eq5d_version = NULL){
   
@@ -636,7 +572,7 @@ table_2_9 <- function(df,
   return(retval)
 }
 
-#' Table 2.10: Summary statistics of EQ-5D values by LFS (Level Frequency Score)
+#' Table 1.3.3: Number of observations in the LFS (Level Frequency Score) according to the EQ-5D values
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -645,11 +581,75 @@ table_2_9 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_2_10(df = example_data, country = "Denmark")
-#' table_2_10(df = example_data, eq5d_version = "3L", country = "Denmark")
+#' table_1_3_3(df = example_data, country = "USA")
+#' table_1_3_3(df = example_data, eq5d_version = "3L", country = "USA")
 #' @export
 #'
-table_2_10 <- function(df, 
+table_1_3_3 <- function(df, 
+                      names_eq5d = NULL,
+                      eq5d_version = NULL,
+                      country){
+  
+  ### data preparation ###
+  
+  # replace NULL names with defaults
+  temp <- .get_names(names_eq5d = names_eq5d, eq5d_version = eq5d_version)
+  names_eq5d <- temp$names_eq5d
+  eq5d_version <- temp$eq5d_version
+  # check existence of columns 
+  names_all <- c(names_eq5d)
+  if (!all(names_all %in% colnames(df)))
+    stop("Provided column names not in dataframe. Stopping.")
+  # all columns defined and exist; only leave relevant columns now
+  df <- df %>%
+    select(!!!syms(names_all)) 
+  # further checks and data preparation
+  df <- .prep_eq5d(df = df, names = names_eq5d, 
+                   add_state = TRUE, 
+                   add_lfs = TRUE, eq5d_version = eq5d_version, 
+                   add_utility = TRUE, country = country) %>%
+    # leave relevant columns only
+    select(lfs, utility)
+  
+  ### analysis ###
+  
+  # summarise for each utility-LFS combination
+  retval <- df %>%
+    # exclude NAs
+    filter(!is.na(lfs)) %>%
+    # summary by each utility-LFS combination
+    group_by(utility) %>%
+    count(lfs = factor(lfs), .drop = FALSE) %>%
+    # arrange by LFS to preserve order when reshaping
+    arrange(lfs) %>%
+    # reshape into wide format
+    pivot_wider(id_cols = utility, names_from = lfs, values_from = n,
+                values_fill = list(n = 0)) %>%
+    # order rows
+    arrange(utility) %>%
+    # add row totals
+    mutate(Total = sum(c_across())) %>%
+    # tidy up
+    rename(`EQ-5D Value` = utility)
+  
+  # return value
+  return(retval)
+}
+
+#' Table 1.3.4: Summary statistics of EQ-5D values by LFS (Level Frequency Score)
+#' 
+#' @param df Data frame with the EQ-5D columns
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param eq5d_version Version of the EQ-5D instrument
+#' @param country A character string representing the name of the country. 
+#' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
+#' @return Summary data frame
+#' @examples
+#' table_1_3_4(df = example_data, country = "Denmark")
+#' table_1_3_4(df = example_data, eq5d_version = "3L", country = "Denmark")
+#' @export
+#'
+table_1_3_4 <- function(df, 
                        names_eq5d = NULL,
                        eq5d_version = NULL,
                        country){
@@ -695,7 +695,7 @@ table_2_10 <- function(df,
   return(retval)
 }
 
-#' Table 3.1: EQ VAS Score: by timepoints
+#' Table 2.1: EQ VAS Score by timepoints
 #' 
 #' @param df Data frame with the VAS and the follow-up columns
 #' @param name_vas Character string for the VAS column
@@ -703,10 +703,10 @@ table_2_10 <- function(df,
 #' @param levels_fu Character vector containing the order of the values in the follow-up column. 
 #' @return Summary data frame
 #' @examples
-#' table_3_1(df = example_data)
+#' table_2_1(df = example_data)
 #' @export
 #'
-table_3_1 <- function(df, 
+table_2_1 <- function(df, 
                       name_vas = NULL,
                       name_fu = NULL,
                       levels_fu = NULL){
@@ -739,17 +739,17 @@ table_3_1 <- function(df,
   return(retval)
 }
 
-#' Table 3.2: EQ VAS Scores: frequency of mid-points
+#' Table 2.2: EQ VAS Scores frequency of mid-points
 #' 
 #' @param df Data frame with the VAS column
 #' @param name_vas Character string for the VAS column
 #' @param add_na_total Logical, whether to add summary of the missing, and across the Total, data
 #' @return Summary data frame
 #' @examples
-#' table_3_2(df = example_data)
+#' table_2_2(df = example_data)
 #' @export
 #'
-table_3_2 <- function(df, 
+table_2_2 <- function(df, 
                       name_vas = NULL, 
                       add_na_total = TRUE){
   
@@ -807,7 +807,7 @@ table_3_2 <- function(df,
   return(retval)
 }
 
-#' Table 4.2 EQ-5D values: by timepoints
+#' Table 3.1: EQ-5D values: by timepoints
 #' 
 #' @param df Data frame with the EQ-5D and follow-up columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -819,12 +819,12 @@ table_3_2 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_4_2(df = example_data, country = "USA")
-#' table_4_2(df = example_data, eq5d_version = "3L", country = "Denmark")
-#' table_4_2(df = example_data, country = "Denmark")
+#' table_3_1(df = example_data, country = "USA")
+#' table_3_1(df = example_data, eq5d_version = "3L", country = "Denmark")
+#' table_3_1(df = example_data, country = "Denmark")
 #' @export
 #'
-table_4_2 <- function(df, 
+table_3_1 <- function(df, 
                       names_eq5d = NULL,
                       name_fu = NULL,
                       levels_fu = NULL,
@@ -866,7 +866,7 @@ table_4_2 <- function(df,
   return(retval)
 }
 
-#' Table 4.3 EQ-5D values: by groupvar
+#' Table 3.2 EQ-5D values: by groupvar
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and grouping columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -879,10 +879,10 @@ table_4_2 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_4_3(df = example_data, name_groupvar = "surgtype", country = "USA")
+#' table_3_2(df = example_data, name_groupvar = "surgtype", country = "USA")
 #' @export
 #'
-table_4_3 <- function(df,
+table_3_2 <- function(df,
                       names_eq5d = NULL,
                       name_fu = NULL,
                       levels_fu = NULL,
@@ -935,7 +935,7 @@ table_4_3 <- function(df,
   return(retval)
 }
 
-#' Table 4.3 EQ-5D values: by age and groupvar
+#' Table 3.3 EQ-5D values: by age and groupvar
 #' 
 #' @param df Data frame with the EQ-5D, age, follow-up and grouping columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -949,11 +949,11 @@ table_4_3 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary data frame
 #' @examples
-#' table_4_4(df = example_data, name_age = "age", name_groupvar = "surgtype", 
+#' table_3_3(df = example_data, name_age = "age", name_groupvar = "surgtype", 
 #'   country = "USA")
 #' @export
 #'
-table_4_4 <- function(df,
+table_3_3 <- function(df,
                       names_eq5d = NULL,
                       name_fu = NULL,
                       levels_fu = NULL,
@@ -1027,7 +1027,7 @@ table_4_4 <- function(df,
   return(retval)
 }
 
-#' Figure 2.1: Paretian Classification of Health Change
+#' Figure 1.2.1: Paretian Classification of Health Change
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1037,12 +1037,12 @@ table_4_4 <- function(df,
 #' @param name_id Character string for the patient id column
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_1(df = example_data, name_fu = "surgtype", name_id = "id")
+#' tmp <- figure_1_2_1(df = example_data, name_fu = "surgtype", name_id = "id")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_2_1 <- function(df, 
+figure_1_2_1 <- function(df, 
                        names_eq5d = NULL,
                        name_fu = NULL,
                        levels_fu = NULL,
@@ -1116,7 +1116,7 @@ figure_2_1 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.2: Percentage of respondents who improved overall by the dimensions (\%)
+#' Figure 1.2.2: Percentage of respondents who improved overall by the dimensions (\%)
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1126,12 +1126,12 @@ figure_2_1 <- function(df,
 #' @param name_id Character string for the patient id column
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_2(df = example_data, name_fu = "year_range", name_id = "id")
+#' tmp <- figure_1_2_2(df = example_data, name_fu = "year_range", name_id = "id")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_2_2 <- function(df, 
+figure_1_2_2 <- function(df, 
                        names_eq5d = NULL,
                        name_fu = NULL,
                        levels_fu = NULL,
@@ -1195,7 +1195,7 @@ figure_2_2 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.3: Percentage of respondents who worsened overall by the dimensions (\%)
+#' Figure 1.2.3: Percentage of respondents who worsened overall by the dimensions (\%)
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1205,12 +1205,12 @@ figure_2_2 <- function(df,
 #' @param name_id Character string for the patient id column
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_3(df = example_data, name_fu = "year_range", name_id = "id")
+#' tmp <- figure_1_2_3(df = example_data, name_fu = "year_range", name_id = "id")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_2_3 <- function(df, 
+figure_1_2_3 <- function(df, 
                        names_eq5d = NULL,
                        name_fu = NULL,
                        levels_fu = NULL,
@@ -1274,7 +1274,7 @@ figure_2_3 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (\%)
+#' Figure 1.2.4: Percentage of respondents who had a mixed change by the dimensions in which they improved and worsened (\%)
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and patient id columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1284,12 +1284,12 @@ figure_2_3 <- function(df,
 #' @param name_id Character string for the patient id column
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_4(df = example_data, name_fu = "year_range", name_id = "id")
+#' tmp <- figure_1_2_4(df = example_data, name_fu = "year_range", name_id = "id")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_2_4 <- function(df, 
+figure_1_2_4 <- function(df, 
                        names_eq5d = NULL,
                        name_fu = NULL,
                        levels_fu = NULL,
@@ -1365,7 +1365,7 @@ figure_2_4 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.8: EQ-5D values plotted against LSS
+#' Figure 1.3.1: EQ-5D values plotted against LSS
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1374,12 +1374,12 @@ figure_2_4 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_8(df = example_data, country = "USA")
+#' tmp <- figure_1_3_1(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_2_8 <- function(df,
+figure_1_3_1 <- function(df,
                        names_eq5d = NULL,
                        eq5d_version = NULL,
                        country){
@@ -1461,7 +1461,7 @@ figure_2_8 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 2.10: EQ-5D values plotted against LFS
+#' Figure 1.3.2: EQ-5D values plotted against LFS
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1470,12 +1470,12 @@ figure_2_8 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_2_10(df = example_data, country = "USA")
+#' tmp <- figure_1_3_2(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_2_10 <- function(df,
+figure_1_3_2 <- function(df,
                         names_eq5d = NULL,
                         eq5d_version = NULL,
                         country){
@@ -1569,18 +1569,18 @@ figure_2_10 <- function(df,
   return(list(plot_data = plot_data, p = p))
 }
 
-#' Figure 3.1: EQ VAS scores
+#' Figure 2.1: EQ VAS scores
 #' 
 #' @param df Data frame with the VAS column
 #' @param name_vas Character string for the VAS column
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_3_1(df = example_data)
+#' tmp <- figure_2_1(df = example_data)
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_3_1 <- function(df, name_vas = NULL){
+figure_2_1 <- function(df, name_vas = NULL){
   
   ### data preparation ###
   # replace NULL names with defaults
@@ -1624,18 +1624,18 @@ figure_3_1 <- function(df, name_vas = NULL){
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 3.2: Mid-point EQ VAS scores
+#' Figure 2.2: Mid-point EQ VAS scores
 #' 
 #' @param df Data frame with the VAS column
 #' @param name_vas Character string for the VAS column
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_3_2(df = example_data)
+#' tmp <- figure_2_2(df = example_data)
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_3_2 <- function(df, name_vas = NULL){
+figure_2_2 <- function(df, name_vas = NULL){
   
   # produce output to be plotted (Table 3.2)
   # do not add totals
@@ -1663,7 +1663,7 @@ figure_3_2 <- function(df, name_vas = NULL){
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.2: EQ-5D values by timepoints: mean values and 95\% confidence intervals
+#' Figure 3.1: EQ-5D values by timepoints: mean values and 95\% confidence intervals
 #' 
 #' @param df Data frame with the VAS columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1675,12 +1675,12 @@ figure_3_2 <- function(df, name_vas = NULL){
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_2(df = example_data, name_fu = "month", country = "USA")
+#' tmp <- figure_3_1(df = example_data, name_fu = "month", country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_4_2 <- function(df,
+figure_3_1 <- function(df,
                        names_eq5d = NULL,
                        name_fu = NULL,
                        levels_fu = NULL,
@@ -1737,7 +1737,7 @@ figure_4_2 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.3: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar
+#' Figure 3.2: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar
 #' 
 #' @param df Data frame with the EQ-5D and grouping columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1747,12 +1747,12 @@ figure_4_2 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_3(df = example_data, name_groupvar = "surgtype", country = "USA")
+#' tmp <- figure_3_2(df = example_data, name_groupvar = "surgtype", country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_4_3 <- function(df,
+figure_3_2 <- function(df,
                        names_eq5d = NULL,
                        name_groupvar,
                        eq5d_version = NULL,
@@ -1815,7 +1815,7 @@ figure_4_3 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.4: EQ-5D values: smoothed lines and confidence intervals by groupvar
+#' Figure 3.3: EQ-5D values: smoothed lines and confidence intervals by groupvar
 #' 
 #' @param df Data frame with the EQ-5D, follow-up and grouping columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1828,13 +1828,13 @@ figure_4_3 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_4(df = example_data, name_fu = "month", 
+#' tmp <- figure_3_3(df = example_data, name_fu = "month", 
 #'   name_groupvar = "gender", country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_4_4 <- function(df, 
+figure_3_3 <- function(df, 
                        names_eq5d = NULL,
                        name_fu = NULL,
                        levels_fu = NULL,
@@ -1896,7 +1896,7 @@ figure_4_4 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.7: EQ-5D values: smoothed lines and confidence intervals by groupvar
+#' Figure 3.4: EQ-5D values: smoothed lines and confidence intervals by groupvar
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1905,12 +1905,12 @@ figure_4_4 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_7(df = example_data, country = "USA")
+#' tmp <- figure_3_4(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_4_7 <- function(df, 
+figure_3_4 <- function(df, 
                        names_eq5d = NULL,
                        eq5d_version = NULL,
                        country) {
@@ -1955,7 +1955,7 @@ figure_4_7 <- function(df,
   return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
 }
 
-#' Figure 4.11: EQ-5D values: smoothed lines and confidence intervals by groupvar
+#' Figure 3.5: EQ-5D values: smoothed lines and confidence intervals by groupvar
 #' 
 #' @param df Data frame with the EQ-5D columns
 #' @param names_eq5d Character vector of column names for the EQ-5D dimensions
@@ -1965,12 +1965,12 @@ figure_4_7 <- function(df,
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
 #' @examples
-#' tmp <- figure_4_11(df = example_data, country = "USA")
+#' tmp <- figure_3_5(df = example_data, country = "USA")
 #' tmp$p
 #' tmp$plot_data
 #' @export
 #'
-figure_4_11 <- function(df,
+figure_3_5 <- function(df,
                         names_eq5d = NULL,
                         name_vas = NULL,
                         eq5d_version = NULL,
