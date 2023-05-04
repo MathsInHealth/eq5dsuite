@@ -31,6 +31,6 @@ Summary data frame.
 Table 1.2.1: Frequency of levels by dimensions, by follow-up
 }
 \examples{
-table_2_1(df = example_data)
-table_2_1(df = example_data, name_fu = "month")
+table_1_2_1(df = example_data)
+table_1_2_1(df = example_data, name_fu = "month")
 }

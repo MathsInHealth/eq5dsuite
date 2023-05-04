@@ -100,9 +100,8 @@
 #' @return A data frame with an additional column named `utility` containing the calculated utility values. If the input country name is not found in the country_codes dataset, a list of available codes is printed, and subsequentyl an error message is displayed and the function stops.
 #' @examples
 #' df <- data.frame(state = c("11111", "11123", "32541"))
-#' .add_utility(df, "3L", "UK")
 #' \dontrun{
-#' .add_utility(df, "5L", "UK")
+#' .add_utility(df, "5L", "DK")
 #' }
 #' @export
 #' 
@@ -118,13 +117,15 @@
     stop('Stopping.')
   }
   
-  # country identifiable; proceed to extract the data
-  vs <- pkgenv[[paste0("vsets", eq5d_version, "_combined")]] %>%
-    select(state, !!(sym(country_code))) %>%
-    rename(utility = !!quo_name(country_code))
-  
-  # merge with df
-  df <- merge(df, vs, all.x = TRUE) 
+  df$utility <- eq5d(x = df$state, country = country_code, version = eq5d_version)
+  # 
+  # # country identifiable; proceed to extract the data
+  # vs <- pkgenv[[paste0("vsets", eq5d_version, "_combined")]] %>%
+  #   select(state, !!(sym(country_code))) %>%
+  #   rename(utility = !!quo_name(country_code))
+  # 
+  # # merge with df
+  # df <- merge(df, vs, all.x = TRUE) 
   
   return(df)
 }
@@ -178,7 +179,7 @@
   } else {
     x[!x %in% 1:5] <- NA
   } 
-  if(sum(is.na(as.vector(x)))>sum(is.na(as.vector(xorig)))) warning(paste0(sum(is.na(as.vector(x)))>sum(is.na(as.vector(xorig))), " observations were coerced to NAs as they were not interpretable as integer values in the range allowed by the EQ-5D descriptive system."))
+  if(sum(is.na(as.vector(x)))>sum(is.na(as.vector(xorig)))) warning(paste0(sum(is.na(as.vector(x)))-sum(is.na(as.vector(xorig))), " observations were coerced to NAs as they were not interpretable as integer values in the range allowed by the EQ-5D descriptive system."))
   df_eq5d[,] <- x
   
   # 
@@ -262,11 +263,11 @@
 .prep_vas <- function(df, name) {
   
   # extract data
-  x <- df[, name]
+  x <- as.vector(as.data.frame(df)[, name])
   
   
   xorig <- x <- as.integer(x)
-  x[!vec %in% 0:100] <- NA
+  x[!x %in% 0:100] <- NA
   if(sum(is.na(x))>sum(is.na(xorig))) warning(paste0(sum(is.na(x))>sum(is.na(xorig)), " observations were coerced to NAs as they were not interpretable as integer values in the range allowed by the EQ-5D descriptive system."))
   df[,name] <- x
   
@@ -370,11 +371,22 @@
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
 #' 
+
+#' Helper function for frequency of levels by dimensions tables
+#' 
+#' @param df Data frame with the EQ-5D and follow-up columns
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param name_fu Character string for the follow-up column. If NULL, no grouping is used, and the table reports for the total population.
+#' @param levels_fu Character vector containing the order of the values in the follow-up column. 
+#' If NULL (default value), the levels will be ordered in the order of appearance in df.
+#' @param eq5d_version Version of the EQ-5D instrument
+#' @return Summary data frame.
+#' 
 .freqtab<- function(df, 
-                     names_eq5d = NULL,
-                     name_fu = NULL,
-                     levels_fu = NULL,
-                     eq5d_version = NULL) {
+                    names_eq5d = NULL,
+                    name_fu = NULL,
+                    levels_fu = NULL,
+                    eq5d_version = NULL) {
   
   ### data preparation ###
   
@@ -530,6 +542,7 @@
 #' @param name_fu Character string for the follow-up column
 #' @param levels_fu Character vector containing the order of the values in the follow-up column. 
 #' If NULL (default value), the levels will be ordered in the order of appearance in df.
+#' @param add_noprobs if set to TRUE, level corresponding to "no problems" will be added to the table
 #' @return Summary data frame
 #' @examples
 #' .pchctab(df = example_data, name_groupvar = "surgtype", name_id = "id")
@@ -739,7 +752,10 @@
 #' df <- data.frame(fu = c(1,1,2,2,3,3), 
 #'                  vas = c(7,8,9,NA,7,6))
 #' .summary_cts_by_fu(df, name_v = "vas")
+#' @importFrom stats median quantile sd
+#' @importFrom moments kurtosis
 #' @export
+#' 
 #' 
 .summary_cts_by_fu <- function(df, name_v) {
   
@@ -757,8 +773,8 @@
               Median = median(v),
               Mode = .getmode(v),
               `Standard deviation` = sd(v),
-              Kurtosis = moments::kurtosis(v),
-              Skewness = moments::skewness(v),
+              Kurtosis = kurtosis(v),
+              Skewness = skewness(v),
               Minimum = min(v),
               Maximum = max(v),
               Range = max(v) - min(v),
@@ -881,6 +897,7 @@
 #' .gen_colours("green", 10)
 #' # generate 7 colours for base colour "orange"
 #' .gen_colours("orange", 7)
+#' @importFrom grDevices colorRampPalette
 #' @export
 #'
 .gen_colours <- function(col, n) {

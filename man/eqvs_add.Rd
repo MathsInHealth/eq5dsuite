@@ -10,8 +10,7 @@ eqvs_add(
   country = NULL,
   description = NULL,
   code2L = NULL,
-  code3L = NULL,
-  three_letter_code = NULL
+  code3L = NULL
 )
 }
 \arguments{
@@ -24,6 +23,8 @@ eqvs_add(
 \item{description}{Optional string. If not NULL, will be used as a descriptive text for the user-defined value set.}
 
 \item{code2L}{Optional string. If not NULL, will be used as the two-digit code for the value set. Must be different from any existing national value set code.}
+
+\item{code3L}{Optional string. If not NULL, will be used as the three-digit code for the value set. Must be different from any existing national value set code.}
 }
 \value{
 True/False, indicating success or error.

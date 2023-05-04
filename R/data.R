@@ -21,16 +21,6 @@
 #' @format A data frame with 6600 rows and 15 variables
 NULL
 
-#' Names of countries with available value sets
-#'
-#' A list consisting of data frames with 2-letter code, full name and short name for every country, for which the relevant value set is available in the, respectively, 3L and 5L value_sets datasets.
-#'
-#' @docType data
-#' @keywords datasets
-#' @name country_codes
-#' @usage data(country_codes)
-#' @format A list with two elements: 3L and 5L. 
-NULL
 
 #' Available 3L and 5L value sets
 #'

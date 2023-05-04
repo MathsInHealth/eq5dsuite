@@ -17,6 +17,11 @@
 
 \item{names_eq5d}{Character vector of column names for the EQ-5D dimensions}
 
+\item{name_fu}{Character string for the follow-up column. If NULL, no grouping is used, and the table reports for the total population.}
+
+\item{levels_fu}{Character vector containing the order of the values in the follow-up column. 
+If NULL (default value), the levels will be ordered in the order of appearance in df.}
+
 \item{eq5d_version}{Version of the EQ-5D instrument}
 
 \item{name_gr}{Character string for the follow-up column. If NULL, no grouping is used, and the table reports for the total population.}
@@ -25,6 +30,10 @@
 If NULL (default value), the levels will be ordered in the order of appearance in df.}
 }
 \value{
+Summary data frame.
+
+Helper function for frequency of levels by dimensions tables
+
 Summary data frame.
 }
 \description{

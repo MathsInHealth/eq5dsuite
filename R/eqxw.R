@@ -1,6 +1,6 @@
 #' @title .pstate5t3
 #' @description Takes a 15 x 5 matrix with probabilities per level/dimension, and creates an 3125x243 matrix with probabilities per state
-#' @param .EQxwprob 15 x 5 matrix with probabilities per level/dimension, typically saved in .EQxwprob
+#' @param probs 15 x 5 matrix with probabilities per level/dimension, typically saved in .EQxwprob
 #' @return An 3125x243 matrix with probabilities per state
 .pstate5t3 <-  function(probs = .EQxwprob) {
   

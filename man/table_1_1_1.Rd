@@ -20,6 +20,6 @@ Summary data frame.
 Table 1.1.1: Frequency of levels by dimensions, cross-sectional
 }
 \examples{
-table_2_1(df = example_data)
-table_2_1(df = example_data, eq5d_version = "3L")
+table_1_1_1(df = example_data)
+table_1_1_1(df = example_data, eq5d_version = "3L")
 }

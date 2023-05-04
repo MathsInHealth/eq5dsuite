@@ -158,6 +158,7 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' @param country Optional string. If not NULL, will be used as a country description for the user-defined value set.
 #' @param description Optional string. If not NULL, will be used as a descriptive text for the user-defined value set. 
 #' @param code2L Optional string. If not NULL, will be used as the two-digit code for the value set. Must be different from any existing national value set code.
+#' @param code3L Optional string. If not NULL, will be used as the three-digit code for the value set. Must be different from any existing national value set code.
 #' @return True/False, indicating success or error.
 #' @examples 
 #' # make nonsense value set
@@ -166,7 +167,7 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' eqvs_add(new_df, version = "5L", country = 'Fantasia')
 #' @importFrom utils read.csv
 #' @export
-eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, code2L = NULL, code3L = NULL, three_letter_code = NULL) {
+eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, code2L = NULL, code3L = NULL) {
   pkgenv <- getOption("eq.env")
   if(class(df) == 'character') {
     if(!file.exists(df)) stop('File named ', df, ' does not appear to exist. Exiting.')

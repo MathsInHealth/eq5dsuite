@@ -5,8 +5,8 @@
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
 #' @examples
-#' table_2_1(df = example_data)
-#' table_2_1(df = example_data, eq5d_version = "3L")
+#' table_1_1_1(df = example_data)
+#' table_1_1_1(df = example_data, eq5d_version = "3L")
 #' @export
 #' 
 table_1_1_1<- function(df, 
@@ -34,7 +34,8 @@ table_1_1_2<- function(df,
                        name_cat = NULL,
                        levels_cat = NULL,
                        eq5d_version = NULL) {
-  .freqtab(df, names_eq5d, name_cat, levels_cat, eq5d_version)
+  tmp <- .freqtab(df, names_eq5d, name_cat, levels_cat, eq5d_version)
+  tmp[-(NROW(tmp)-(1:2)),]
 }
 
 #' Table 1.2.1: Frequency of levels by dimensions, by follow-up
@@ -47,8 +48,8 @@ table_1_1_2<- function(df,
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
 #' @examples
-#' table_2_1(df = example_data)
-#' table_2_1(df = example_data, name_fu = "month")
+#' table_1_2_1(df = example_data)
+#' table_1_2_1(df = example_data, name_fu = "month")
 #' @export
 #' 
 table_1_2_1<- function(df, 
@@ -123,10 +124,21 @@ table_2_3 <- function(df,
     slice_head(n = n)
   
   # worst state
+  
   state_worst <- if (eq5d_version == "5L") "55555" else "33333"
-  states_worst <- states_all %>%
-    filter(state == state_worst) %>%
-    mutate(cum_p = 1)
+  
+  if(!state_worst %in% states_top[,1]) {
+    states_worst <- states_all %>%
+      filter(state == state_worst) %>%
+      mutate(cum_p = 1)  
+    states_worst <- states_worst[c(1,1),]
+    states_worst[1,] <- NA
+    states_worst[1,1] <- '...'
+  } else {
+    states_worst <- all_states[0,]
+  }
+  
+  
   
   # missing data
   state_na <- df %>%
@@ -144,7 +156,93 @@ table_2_3 <- function(df,
   return(retval)
 }
 
-
+#' Table 2.4: Changes in health according to the PCHC (Paretian Classification of Health Change)
+#' 
+#' @param df Data frame with the EQ-5D, grouping, id and follow-up columns
+#' @param name_id Character string for the patient id column
+#' @param name_groupvar Character string for the grouping column
+#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
+#' @param name_fu Character string for the follow-up column
+#' @param levels_fu Character vector containing the order of the values in the follow-up column. 
+#' If NULL (default value), the levels will be ordered in the order of appearance in df.
+#' @return Summary data frame
+#' @examples
+#' table_2_4(df = example_data, name_groupvar = "surgtype", name_id = "id")
+#' @export
+#'
+table_2_4 <- function(df,
+                      name_id,
+                      name_groupvar,
+                      names_eq5d = NULL,
+                      name_fu = NULL, 
+                      levels_fu = NULL) {
+  
+  ### data preparation ###
+  
+  # replace NULL names with defaults
+  temp <- .get_names(df = df, 
+                     names_eq5d = names_eq5d, 
+                     name_fu = name_fu, levels_fu = levels_fu)
+  names_eq5d <- temp$names_eq5d
+  name_fu <- temp$name_fu
+  levels_fu <- temp$levels_fu
+  # check existence of columns 
+  names_all <- c(name_groupvar, name_id, names_eq5d, name_fu)
+  if (!all(names_all %in% colnames(df)))
+    stop("Provided column names not in dataframe. Stopping.")
+  # all columns defined and exist; only leave relevant columns now
+  df <- df %>%
+    select(!!!syms(names_all)) 
+  # further checks and data preparation
+  df <- df %>%
+    rename(id = !!quo_name(name_id),
+           groupvar = !!quo_name(name_groupvar))
+  df <- .prep_eq5d(df = df, names = names_eq5d)
+  df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
+  # sort by id - groupvar - time
+  df <- df %>%
+    arrange(id, groupvar, fu)
+  # check uniqueness of id-groupvar-fu combinations
+  .check_uniqueness(df, group_by = c("id", "groupvar", "fu"))
+  
+  ### analysis ###
+  
+  # calculate change
+  df <- .pchc(df = df, level_fu_1 = levels_fu[1]) %>%
+    filter(!is.na(state)) %>%
+    mutate(state = 
+             factor(state,
+                    # levels = c("Improve", "Mixed change", "No change", "Worsen")))
+                    levels = c("No change", "Improve", "Worsen", "Mixed change")))
+  
+  # summarise by groupvar, fu & state
+  summary_dim <- df %>%
+    group_by(groupvar, fu, state) %>%
+    summarise(n = n()) %>%
+    mutate(p = n / sum(n)) %>%
+    ungroup()
+  
+  # summarise totals
+  summary_total <- summary_dim %>%
+    group_by(groupvar, fu) %>%
+    summarise(n = sum(n), p = sum(p), .groups = "drop") %>%
+    # add label
+    mutate(state = "Grand Total") 
+  
+  # combine & tidy up
+  retval <- bind_rows(summary_dim, summary_total) %>%
+    # reshape into a long format to subsequently impose order on columns in pivot_wider
+    pivot_longer(cols = n:p) %>%
+    # finally reshape wider
+    pivot_wider(id_cols = state, 
+                names_from = c(groupvar, fu, name), 
+                values_from = value,
+                # fill NAs with 0
+                values_fill = list(value = 0))
+  
+  # return value
+  return(retval)
+}
 
 #' Table 2.5: Changes in health according to the PCHC, taking account of those with no problems
 #' 
@@ -220,7 +318,7 @@ table_2_5 <- function(df,
   retval <- bind_rows(summary_with_probs, summary_by_probs_status) %>%
     # impose order
     mutate(state_noprobs = factor(state_noprobs, 
-                                    levels = c("Improve", "Mixed change", "No change", "Worsen",
+                                    levels = c("No change", "Improve", "Worsen", "Mixed change",
                                                "Total with problems", "No problems"))) %>%
     # reshape into a long format to subsequently impose order on columns in pivot_wider
     pivot_longer(cols = n:p) %>%
@@ -1165,7 +1263,7 @@ figure_2_3 <- function(df,
   # plot
   p <- .pchc_plot_by_dim(plot_data = plot_data, 
                          ylab = "Percentage of respondents who worsened overall",
-                         title = "Percentage of respondents who worsened overall \nby the dimensions in which they improved (%)", 
+                         title = "Percentage of respondents who worsened overall \nby the dimensions in which they got worse (%)", 
                          cols = .gen_colours("orange", length(unique(plot_data$fu))))
   
   # tidy up summary
@@ -1453,7 +1551,8 @@ figure_2_10 <- function(df,
                        expand = expansion(add = c(0.5, 0.5))) +
     # manipulate y-axis
     scale_y_continuous(name = "EQ-5D value",
-                       breaks = y_breaks) +
+                       breaks = y_breaks)
+  p <- .modify_ggplot_theme(p = p) + 
     # tidy up the graph
     theme(
       # rotate labels in the x-axis
@@ -1467,7 +1566,7 @@ figure_2_10 <- function(df,
            Minimum = min,
            Maximum = max)
   
-  return(list(plot_data = plot_data, p = .modify_ggplot_theme(p = p)))
+  return(list(plot_data = plot_data, p = p))
 }
 
 #' Figure 3.1: EQ VAS scores
