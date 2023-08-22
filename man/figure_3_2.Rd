@@ -2,23 +2,30 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_3_2}
 \alias{figure_3_2}
-\title{Figure 3.2: Mid-point EQ VAS scores}
+\title{Figure 3.2: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar}
 \usage{
-figure_3_2(df, name_vas = NULL)
+figure_3_2(df, names_eq5d = NULL, name_groupvar, eq5d_version = NULL, country)
 }
 \arguments{
-\item{df}{Data frame with the VAS column}
+\item{df}{Data frame with the EQ-5D and grouping columns}
 
-\item{name_vas}{Character string for the VAS column}
+\item{names_eq5d}{Character vector of column names for the EQ-5D dimensions}
+
+\item{name_groupvar}{Character string for the grouping column}
+
+\item{eq5d_version}{Version of the EQ-5D instrument}
+
+\item{country}{A character string representing the name of the country. 
+This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.}
 }
 \value{
 Summary plot and data used for plotting
 }
 \description{
-Figure 3.2: Mid-point EQ VAS scores
+Figure 3.2: Mean EQ-5D values and 95\% confidence intervals: all vs by groupvar
 }
 \examples{
-tmp <- figure_3_2(df = example_data)
+tmp <- figure_3_2(df = example_data, name_groupvar = "surgtype", country = "USA")
 tmp$p
 tmp$plot_data
 }

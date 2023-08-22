@@ -2,30 +2,23 @@
 % Please edit documentation in R/eq5d_devlin.R
 \name{figure_2_1}
 \alias{figure_2_1}
-\title{Figure 2.1: Paretian Classification of Health Change}
+\title{Figure 2.1: EQ VAS scores}
 \usage{
-figure_2_1(df, names_eq5d = NULL, name_fu = NULL, levels_fu = NULL, name_id)
+figure_2_1(df, name_vas = NULL)
 }
 \arguments{
-\item{df}{Data frame with the EQ-5D, follow-up and patient id columns}
+\item{df}{Data frame with the VAS column}
 
-\item{names_eq5d}{Character vector of column names for the EQ-5D dimensions}
-
-\item{name_fu}{Character string for the follow-up column}
-
-\item{levels_fu}{Character vector containing the order of the values in the follow-up column. 
-If NULL (default value), the levels will be ordered in the order of appearance in df.}
-
-\item{name_id}{Character string for the patient id column}
+\item{name_vas}{Character string for the VAS column}
 }
 \value{
 Summary plot and data used for plotting
 }
 \description{
-Figure 2.1: Paretian Classification of Health Change
+Figure 2.1: EQ VAS scores
 }
 \examples{
-tmp <- figure_2_1(df = example_data, name_fu = "surgtype", name_id = "id")
+tmp <- figure_2_1(df = example_data)
 tmp$p
 tmp$plot_data
 }
