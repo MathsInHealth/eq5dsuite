@@ -486,35 +486,3 @@ eq5dy3l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad
   argl[['version']] <- "Y3L"
   do.call(eq5d, argl)
 }
-
-#' @title eqxw
-#' @description Get EQ-5D-3L crosswalk index values from individual responses to the five dimensions of the EQ-5D-5L (-3L value set applied to -5L health states). 
-#' @param x A vector of 5-digit EQ-5D-5L state indexes or a matrix/data.frame with columns corresponding to EQ-5D-5L state dimensions.
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3.
-#' @param dim.names A character vector specifying the names of the EQ-5D-5L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad"). 
-#' @return A vector of crosswalk EQ-5D-3L values or data.frame with one column for each value set requested.
-#' @examples 
-#' eqxw(c(11111, 12321, 32423, 55555), 'US') # US -3L crosswalk value set
-#' eqxw(make_all_EQ_states('5L'), c('DK', 'CA')) # Danish and Canada -3L crosswalk value sets 
-#' @export
-eqxw <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")){
-  argl <- as.list(match.call(expand.dots = TRUE))[-1]
-  argl[['version']] <- "XW"
-  do.call(eq5d, argl)
-}
-
-#' @title eqxwr
-#' @description Get EQ-5D-5L crosswalk reverse index values from individual responses to the five dimensions of the EQ-5D-3L (-5L value set applied to -3L health states). 
-#' @param x A vector of 5-digit EQ-5D-3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D-3L state dimensions.
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3.
-#' @param dim.names A character vector specifying the names of the EQ-5D-3L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad"). 
-#' @return A vector of EQ-5D-5L values or data.frame with one column for each value set requested.
-#' @examples 
-#' eqxwr(c(11111, 12321, 32123, 33333), 'IT') # Italy -5L crosswalk reverse value set
-#' eqxwr(make_all_EQ_states('3L'), c('Japan', 'China')) # Japon and China -5L crosswalk reverse value sets 
-#' @export
-eqxwr <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")){
-  argl <- as.list(match.call(expand.dots = TRUE))[-1]
-  argl[['version']] <- "XWR"
-  do.call(eq5d, argl)
-}

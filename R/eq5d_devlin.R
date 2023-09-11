@@ -1639,7 +1639,7 @@ figure_2_2 <- function(df, name_vas = NULL){
   
   # produce output to be plotted (Table 3.2)
   # do not add totals
-  plot_data <- table_3_2(df = df, name_vas = name_vas, add_na_total = FALSE) %>%
+  plot_data <- table_2_2(df = df, name_vas = name_vas, add_na_total = FALSE) %>%
     # remove Range column, not needed
     select(-Range)
   
