@@ -3,27 +3,29 @@
 \docType{data}
 \name{example_data}
 \alias{example_data}
-\title{An example patient-level dataset}
+\title{example_data}
 \format{
-A data frame with 6600 rows and 15 variables
+A data frame with 6600 rows and 13 variables:
+\describe{
+  \item{\code{id}}{double Patient id}
+  \item{\code{mo}}{double EQ-5D-5L Mobility dimension}
+  \item{\code{sc}}{double EQ-5D-5L Self-care dimension}
+  \item{\code{ua}}{double EQ-5D-5L Usual activities dimension}
+  \item{\code{pd}}{double EQ-5D-5L Pain / discomfort dimension}
+  \item{\code{ad}}{double EQ-5D-5L Anxiety/depression dimension}
+  \item{\code{vas}}{double Value of the VAS scale measurememnt}
+  \item{\code{fu}}{character Follow-up (baseline / follow-up)}
+  \item{\code{year_range}}{character Time period for the follow-up (2009-2010 / 2010-2011 / 2011-2012); could be used as an alternative follow-up variable}
+  \item{\code{month}}{double Another alternative follow-up variable (1, ..., 15)}
+  \item{\code{surgtype}}{character Type of surgery (Cataract / Hernia / Hip / Knee / Veins)}
+  \item{\code{gender}}{character Patient's gender (Female / Male)}
+  \item{\code{age}}{double Patient's age in years} 
+}
 }
 \usage{
 data(example_data)
 }
 \description{
 A dataset containing patient-level data in a long format.
-}
-\details{
-\itemize{
- \item id: patient id
- \item mobility, selfcare, usualact, paindisc, anxietyd: the five EQ-5D domains
- \item vas: value of the VAS scale measurememnt
- \item fu: follow-up (baseline / follow-up)
- \item year_range: time period for the follow-up (2009-2010 / 2010-2011 / 2011-2012); could be used as an alternative follow-up variable
- \item month: another alternative follow-up variable (1, ..., 15)
- \item surgtype: type of surgery (Cataract / Hernia / Hip / Knee / Veins)
- \item gender: patient's gender (Female / Male)
- \item age: patient's gender in years
-}
 }
 \keyword{datasets}

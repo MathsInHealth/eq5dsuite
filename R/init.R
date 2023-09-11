@@ -41,17 +41,19 @@
   # if(!'vsets5L' %in% names(pkgenv)) assign(x = "vsets5L", .vsets5L, envir = pkgenv)
   # if(!'cntrcodes' %in% names(pkgenv)) assign(x = "cntrcodes", .cntrcodes, envir = pkgenv)
   
-  # possible 3L/5L states
+  # possible 3L/5L/Y3L states
   if(!'states_3L' %in% names(pkgenv)) assign(x = "states_3L", value = make_all_EQ_states(version = '3L', append_index = T), envir = pkgenv)
   if(!'states_5L' %in% names(pkgenv)) assign(x = "states_5L", value =  make_all_EQ_states(version = '5L', append_index = T), envir = pkgenv)
   
   # generate empty uservsets3L/5L
   if(!'uservsets3L' %in% names(pkgenv)) assign(x = "uservsets3L", value =  pkgenv$states_3L[,"state", drop = F], envir = pkgenv)
   if(!'uservsets5L' %in% names(pkgenv)) assign(x = "uservsets5L", value =  pkgenv$states_5L[,"state", drop = F], envir = pkgenv)
+  if(!'uservsetsY3L' %in% names(pkgenv)) assign(x = "uservsetsY3L", value =  pkgenv$states_3L[,"state", drop = F], envir = pkgenv)
   
   # combined core and user-defined sets
   assign(x = "vsets3L_combined", value = merge(.vsets3L, pkgenv$uservsets3L), envir = pkgenv)
   assign(x = "vsets5L_combined", value = merge(.vsets5L, pkgenv$uservsets5L), envir = pkgenv)
+  assign(x = "vsetsY3L_combined", value = merge(.vsetsY3L, pkgenv$uservsetsY3L), envir = pkgenv)
   
   # variables used for reverse crosswalk
   if(!'PPP' %in% names(pkgenv)) assign(x = "PPP", value = .EQxwrprob(par = .EQrxwmod7), envir = pkgenv)
@@ -62,7 +64,7 @@
   if (!'probs5t3' %in% names(pkgenv)) assign(x = "probs5t3", value = .pstate5t3(.EQxwprob), envir = pkgenv)
   if('probs5t3' %in% names(pkgenv)) assign(x = 'xwsets', value = pkgenv$probs5t3 %*% cbind(as.matrix(.vsets3L[, -1, drop = F]), if("uservsets3L" %in% names(pkgenv)) as.matrix(pkgenv$uservsets3L[,-1, drop = F]) else NULL), envir = pkgenv)
 
-  EQvariants <- c('5L' = '5L', '3L' = '3L')
+  EQvariants <- c('5L' = '5L', '3L' = '3L', "Y3L" = "Y3L")
   assign(x = 'country_codes', envir = pkgenv, value = lapply(EQvariants, function(EQvariant) {
     # message(EQvariant)
     tmp <- .cntrcodes[.cntrcodes$ISO3166Alpha2 %in% colnames(get(paste0('.vsets', EQvariant)))[-1],]
