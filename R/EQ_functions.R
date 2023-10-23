@@ -19,7 +19,7 @@ toEQ5Dindex <- function(x, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   # Matrix or data.frame
   if(!length(dim.names) == 5) stop("Argument dim.names not of length 5.")
   if(length(dim(x)) == 2) {
-    colnames(x) <- tolower(colnames(x))
+    # colnames(x) <- tolower(colnames(x))
     if(is.null(colnames(x))) {
       message("No column names")
       if(NCOL(x) == 5) {
