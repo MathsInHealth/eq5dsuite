@@ -38,7 +38,7 @@ toEQ5Dindex <- function(x, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
       names(x) <- dim.names
     }
   } else {
-    #names(x) <- tolower(names(x))
+    names(x) <- tolower(names(x))
   }
   if(!all(dim.names %in% names(x))) stop("Provided dimension names not in vector names. Stopping.")
   as.integer(x[dim.names] %*% (10^(4:0)))
@@ -379,7 +379,7 @@ eq5d <- function(x, country = NULL, version = '5L', dim.names = c("mo", "sc", "u
   
   if(!length(dim.names) == 5) stop("Argument dim.names not of length 5.")
   if(length(dim(x)) == 2) {
-    colnames(x) <- tolower(colnames(x))
+    # colnames(x) <- tolower(colnames(x))
     if(is.null(colnames(x))) {
       message("No column names")
       if(NCOL(x) == 5) {
