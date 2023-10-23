@@ -38,7 +38,7 @@ toEQ5Dindex <- function(x, dim.names = c("mo", "sc", "ua", "pd", "ad")) {
       names(x) <- dim.names
     }
   } else {
-    names(x) <- tolower(names(x))
+    #names(x) <- tolower(names(x))
   }
   if(!all(dim.names %in% names(x))) stop("Provided dimension names not in vector names. Stopping.")
   as.integer(x[dim.names] %*% (10^(4:0)))
