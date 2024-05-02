@@ -1,6 +1,6 @@
 #' @title .pstate3t5
 #' @description Takes a N x 25 matrix with probabilities per level/dimension, and creates an N * 3125 matrix with probabilities per state
-#' @param PPP N x 25 matrix with probabilities per level/dimension, typically created by .EQrxwprobs
+#' @param PPP N x 25 matrix with probabilities per level/dimension created by EQrxwprobs
 #' @return An N * 3125 matrix with probabilities per state
 .pstate3t5 <-function(PPP) {
   vallst <- as.vector(as.matrix(expand.grid(21:25, 16:20, 11:15, 6:10, 1:5))[, 5:1])
@@ -49,7 +49,7 @@
 #' @title eqxwr
 #' @description Get reverse crosswalk values
 #' @param x A vector of 5-digit EQ-5D-3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D state dimensions
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3
+#' @param country String vector indicating country names or  ISO3166 Alpha 2 / 3 country codes.
 #' @param dim.names A vector of dimension names to identify dimension columns
 #' @return A vector of reverse crosswalk values or data.frame with one column per reverse crosswalk set requested.
 #' @examples 
@@ -81,7 +81,7 @@ eqxwr <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")
   
   if(length(country)==0) {
     message('No valid countries listed. These value sets are currently available.')
-    eqxwr_display()
+    eqvs_display(version = "5L")
     stop('No valid countries listed.')
   }
   

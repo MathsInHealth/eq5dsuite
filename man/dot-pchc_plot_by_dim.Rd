@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_aux.R
 \name{.pchc_plot_by_dim}
 \alias{.pchc_plot_by_dim}
-\title{Wrapper to generate Paretian Classification of Health Change (PCHC) plot by dimension}
+\title{Wrapper to generate Paretian Classification of Health Change plot by dimension}
 \usage{
 .pchc_plot_by_dim(plot_data, ylab, title, cols, text_rotate = FALSE)
 }
@@ -21,7 +21,9 @@
 A ggplot object containing the PCHC plot.
 }
 \description{
-This internal function plots Paretian Classification of Health Change (PCHC) by dimension. The input is a data frame containing the information to plot, and the plot will contain bars representing the proportion of the total data that falls into each dimension, stacked by covariate.
+This internal function plots Paretian Classification of Health Change (PCHC) by dimension. 
+The input is a data frame containing the information to plot, and the plot will contain bars representing 
+the proportion of the total data that falls into each dimension, stacked by covariate.
 The wrapper is used in Figures 2.2-2.4.
 }
 \examples{

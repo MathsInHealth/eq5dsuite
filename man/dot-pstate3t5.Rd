@@ -7,7 +7,7 @@
 .pstate3t5(PPP)
 }
 \arguments{
-\item{PPP}{N x 25 matrix with probabilities per level/dimension, typically created by .EQrxwprobs}
+\item{PPP}{N x 25 matrix with probabilities per level/dimension created by EQrxwprobs}
 }
 \value{
 An N * 3125 matrix with probabilities per state

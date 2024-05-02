@@ -9,7 +9,7 @@ eq5d3l(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"))
 \arguments{
 \item{x}{A vector of 5-digit EQ-5D-3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D-3L state dimensions.}
 
-\item{country}{String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3.}
+\item{country}{String vector indicating country names or  ISO3166 Alpha 2 / 3 country codes.}
 
 \item{dim.names}{A character vector specifying the names of the EQ-5D-3L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad").}
 }

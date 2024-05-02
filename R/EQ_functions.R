@@ -169,7 +169,7 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' @export
 eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, code2L = NULL, code3L = NULL) {
   pkgenv <- getOption("eq.env")
-  if(class(df) == 'character') {
+  if(inherits(df, 'character')) {
     if(!file.exists(df)) stop('File named ', df, ' does not appear to exist. Exiting.')
     df <- utils::read.csv(file = df, stringsAsFactors = F)
   } 
@@ -360,14 +360,17 @@ eqvs_display <- function(version = "5L", return_df = FALSE) {
 #' @title eq5d
 #' @description Get EQ-5D index values for the -3L, -5L, crosswalk (-3L value set applied to -5L health states),  reverse crosswealk (-5L value set applied to -3L health states), and -Y-3L
 #' @param x A vector of 5-digit EQ-5D-3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D state dimensions
-#' @param version String indicating which version to use. Options are '5L'  (default), '3L', 'xw', 'xwr', and 'Y3L'
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3
-#' @param dim.names A vector of dimension names to identify dimension columns
+#' @param version String indicating which version to use. Options are '5L'  (default), '3L', 'xw', 'xwr', and 'Y3L'.
+#' @param country String vector indicating country names or  ISO3166 Alpha 2 / 3 country codes.
+#' @param dim.names A vector of dimension names to identify dimension columns.
 #' @return A vector of values or data.frame with one column for each value set requested.
 #' @examples 
-#' eq5d(c(11111, 12321, 32123, 33333), 'US', '3L') # US -3L value set
-#' eq5d(make_all_EQ_states('3L'), c('DK', 'US'), 'XWR') # Danish and US -5L value sets applied to -3L descriptives, i.e. reverse crosswalk
-#' eq5d(c(11111, 12321, 32153, 55555), 'US', '5L') # US -5L value set
+#' # US -3L value set
+#' eq5d(c(11111, 12321, 32123, 33333), 'US', '3L') 
+#' # Danish and US -5L value sets applied to -3L descriptives, i.e. reverse crosswalk
+#' eq5d(make_all_EQ_states('3L'), c('DK', 'US'), 'XWR') 
+#' # US -5L value set
+#' eq5d(c(11111, 12321, 32153, 55555), 'US', '5L') 
 #' @export
 eq5d <- function(x, country = NULL, version = '5L', dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   pkgenv <- getOption("eq.env")
@@ -442,7 +445,7 @@ eq5d <- function(x, country = NULL, version = '5L', dim.names = c("mo", "sc", "u
 #' @title eq5d3l
 #' @description Get EQ-5D-3L index values from individual responses to the five dimensions of the EQ-5D-3L. 
 #' @param x A vector of 5-digit EQ-5D-3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D-3L state dimensions.
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3.
+#' @param country String vector indicating country names or  ISO3166 Alpha 2 / 3 country codes.
 #' @param dim.names A character vector specifying the names of the EQ-5D-3L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad"). 
 #' @return A vector of EQ-5D-3L values or data.frame with one column for each value set requested.
 #' @examples 
@@ -458,7 +461,7 @@ eq5d3l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"
 #' @title eq5d5l
 #' @description Get EQ-5D-5L index values from individual responses to the five dimensions of the EQ-5D-5L. 
 #' @param x A vector of 5-digit EQ-5D-5L state indexes or a matrix/data.frame with columns corresponding to EQ-5D-5L state dimensions.
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3.
+#' @param country String vector indicating country names or  ISO3166 Alpha 2 / 3 country codes.
 #' @param dim.names A character vector specifying the names of the EQ-5D-5L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad"). 
 #' @return A vector of EQ-5D-5L values or data.frame with one column for each value set requested.
 #' @examples 
@@ -473,13 +476,15 @@ eq5d5l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"
 
 #' @title eq5dy3l
 #' @description Get EQ-5D-Y3L index values from individual responses to the five dimensions of the EQ-5D-Y3L. 
-#' @param x A vector of 5-digit EQ-5D-Y3L state indexes or a matrix/data.frame with columns corresponding to EQ-5D-Y3L state dimensions.
-#' @param country String vector indicating country name(s) or country code(s) according to ISO3166 Alpha 2 or Alpha 3.
+#' @param x A vector of 5-digit EQ-5D-Y3L state indexes or a matrix / data frame with columns for each dimension.
+#' @param country String vector indicating country names or  ISO3166 Alpha 2 / 3 country codes.
 #' @param dim.names A character vector specifying the names of the EQ-5D-Y3L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad"). 
 #' @return A vector of EQ-5D-Y3L values or data.frame with one column for each value set requested.
 #' @examples 
-#' eq5dy3l(x = c(11111, 12321, 33333), country = 'SI') # Slovenia -Y3L value set
-#' eq5dy3l(make_all_EQ_states('3L'), c('Germany', 'Spain')) # Germany and Spain -Y3L value sets 
+#' # Slovenia -Y3L value set
+#' eq5dy3l(x = c(11111, 12321, 33333), country = 'SI') 
+#' # Germany and Spain -Y3L value sets 
+#' eq5dy3l(make_all_EQ_states('3L'), c('Germany', 'Spain')) 
 #' @export
 eq5dy3l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")){
   argl <- as.list(match.call(expand.dots = TRUE))[-1]

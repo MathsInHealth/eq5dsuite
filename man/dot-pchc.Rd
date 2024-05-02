@@ -2,7 +2,7 @@
 % Please edit documentation in R/eq5d_aux.R
 \name{.pchc}
 \alias{.pchc}
-\title{Wrapper to determine Paretian Classification of Health Change (PCHC)}
+\title{Wrapper to determine Paretian Classification of Health Change}
 \usage{
 .pchc(df, level_fu_1, add_noprobs = FALSE)
 }

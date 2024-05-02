@@ -22,21 +22,4 @@
 #' @usage data(example_data)
 NULL
 
-#' @title sysdata
-#' @description This dataset contains internal data used by various functions in the package. It is not intended for direct access by the user.
-#' @format An object of class list with the following elements: 
-#' \describe{
-#'   \item{\code{.cntrcodes}}{\code{data.frame} A data frame with 256 rows and 4 variables: Name, Name_short, ISO3166Alpha2, and ISO3166Alpha3.}
-#'   \item{\code{.uservsets3L}}{\code{data.frame} A data frame with user-added EQ-5D-3L value sets.}
-#'   \item{\code{.uservsets5L}}{\code{data.frame} A data frame with user-added EQ-5D-5L value sets.}
-#'   \item{\code{.uservsetsY3L}}{\code{data.frame} A data frame with user-added EQ-5D-Y3L value sets.}
-#'   \item{\code{.vsets3L}}{\code{data.frame} A data frame with default EQ-5D-3L value sets identified by their ISO3166Alpha2 code.}
-#'   \item{\code{.vsets5L}}{\code{data.frame} A data frame with default EQ-5D-5L value sets identified by their ISO3166Alpha2 code.}
-#'   \item{\code{.vsetsY3L}}{\code{data.frame} A data frame with default EQ-5D-Y3L value sets identified by their ISO3166Alpha2 code.}
-#'   \item{\code{.EQrxwmod7}}{\code{data.frame} A data frame with transition probabilities to generate EQ-XWR value sets.}
-#'   \item{\code{.EQxwprob}}{\code{data.frame} A data frame with transition probabilities to generate EQ-XW value sets.}
-#'}
-#' @details The `sysdata.rda` file is loaded during the package's startup process.
-#' @note This data is for internal use only and may change in future versions of the package.
-#' @keywords internal
-NULL
+

@@ -153,7 +153,8 @@
 #'   add_state = TRUE, add_lss = TRUE, add_lfs = TRUE, add_utility = TRUE,
 #'   eq5d_version = "5L", country = "Denmark")
 #' @export
-#' 
+#' @importFrom rlang .data
+
 .prep_eq5d <- function(df, names,
                        add_state = FALSE,
                        add_lss = FALSE,
@@ -208,11 +209,11 @@
   
   # add additional columns if required
   if (add_state)
-    df <- df %>% mutate(state = str_c(mo, sc, ua, pd, ad))
+    df <- df %>% mutate(state = str_c(.data$mo, .data$sc, .data$ua, .data$pd, .data$ad))
   if (add_lss)
-    df <- df %>% mutate(lss = mo + sc + ua + pd + ad)
+    df <- df %>% mutate(lss = .data$mo + .data$sc + .data$ua + .data$pd + .data$ad)
   if (add_lfs)
-    df <- df %>% mutate(lfs = .get_lfs(s = state, eq5d_version = eq5d_version))
+    df <- df %>% mutate(lfs = .get_lfs(s = .data$state, eq5d_version = eq5d_version))
   if (add_utility)
     df <- .add_utility(df = df, eq5d_version = eq5d_version, country = country) 
   
@@ -232,14 +233,15 @@
 #'   visit = c("baseline", "follow-up", "baseline", "follow-up"))
 #' .prep_fu(df = df, name = "visit", levels = c("baseline", "follow-up"))
 #' @export
-#' 
+#' @importFrom rlang .data
+ 
 .prep_fu <- function(df, name = NULL, levels = NULL) {
   
   df <- df %>%
     # rename columns
     rename(fu = !!quo_name(name)) %>%
     # factorise
-    mutate(fu = factor(fu, levels = levels))
+    mutate(fu = factor(.data$fu, levels = levels))
   
   return(df = df)
 }
@@ -349,28 +351,18 @@
 #'                  fu = rep(c(1, 0, 1, 0, 1), 2))
 #' .summary_table_2_1(df, c("eq5d", "fu"))
 #' @export
-#' 
+#' @importFrom rlang .data
+
 .summary_table_2_1 <- function(df, group_by) {
   
   retval <-  df %>%
     group_by_at(group_by) %>%
     summarise(n = n(), .groups = "drop") %>%
-    group_by(eq5d, fu) %>%
+    group_by(eq5d, .data$fu) %>%
     mutate(freq = n / sum(n))
   
   return(retval)
 }
-
-#' Helper function for frequency of levels by dimensions tables
-#' 
-#' @param df Data frame with the EQ-5D and follow-up columns
-#' @param names_eq5d Character vector of column names for the EQ-5D dimensions
-#' @param name_gr Character string for the follow-up column. If NULL, no grouping is used, and the table reports for the total population.
-#' @param levels_gr Character vector containing the order of the values in the follow-up column. 
-#' If NULL (default value), the levels will be ordered in the order of appearance in df.
-#' @param eq5d_version Version of the EQ-5D instrument
-#' @return Summary data frame.
-#' 
 
 #' Helper function for frequency of levels by dimensions tables
 #' 
@@ -381,7 +373,8 @@
 #' If NULL (default value), the levels will be ordered in the order of appearance in df.
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
-#' 
+#' @importFrom rlang .data
+
 .freqtab<- function(df, 
                     names_eq5d = NULL,
                     name_fu = NULL,
@@ -419,17 +412,17 @@
   
   # reshape into a long format
   df <- df %>%
-    pivot_longer(cols = -fu, names_to = "eq5d", values_to = "value")
+    pivot_longer(cols = -'fu', names_to = 'eq5d', values_to = 'value')
   
   # complete case dataset: remove NA values
   df_cc <- df %>%
-    filter(!is.na(value))
+    filter(!is.na(.data$value))
   
   # summary: individual levels
   summary_dim <- .summary_table_2_1(df = df_cc, group_by = c("eq5d", "value", "fu")) %>%
     # tidy up the group category
-    rename(level = value) %>%
-    mutate(level = as.character(level))
+    rename(level = 'value') %>%
+    mutate(level = as.character(.data$level))
   
   # summary: total
   summary_total <-  .summary_table_2_1(df = df_cc, group_by = c("eq5d", "fu")) %>%
@@ -438,18 +431,18 @@
   # summary: some problems and change
   summary_problems <- df_cc %>%
     # keep only relevant values
-    filter(value != 1) %>%
-    group_by(eq5d, fu) %>%
+    filter(.data$value != 1) %>%
+    group_by(.data$eq5d, .data$fu) %>%
     summarise(n = n(), .groups = "drop")
   
   # merge with summary_total to calculate percentages
   summary_problems <- merge(summary_problems, 
-                            summary_total %>% select(eq5d, fu, n), 
+                            summary_total %>% select('eq5d', 'fu', 'n'), 
                             by = c("eq5d", "fu"),
                             suffix = c("", "_total")) %>%
-    mutate(freq = n / n_total) %>%
+    mutate(freq = n / .data$n_total) %>%
     # tidy up
-    select(-n_total)
+    select(-'n_total')
   # define the group category for subsequent linking
   suffix <- if (eq5d_version == "3L") "2+3" else "2+3+4+5"
   summary_problems <- summary_problems %>% 
@@ -459,30 +452,30 @@
   # change in numbers reporting problems since previous time point
   summary_problems_change <- summary_problems %>%
     # remove redundant columns
-    select(-freq, -level) %>%
+    select(-'freq', -'level') %>%
     # impose order on time
-    arrange(eq5d, factor(fu, levels = levels_fu)) %>%
+    arrange(eq5d, factor(.data$fu, levels = levels_fu)) %>%
     group_by(eq5d) %>%
     # generate lagged n
     mutate(n_prev = lag(n)) %>%
     # calculate change
-    mutate(n_change = n - n_prev) %>%
+    mutate(n_change = n - .data$n_prev) %>%
     # add percentage
-    mutate(freq = n_change / n_prev) %>%
+    mutate(freq = .data$n_change / .data$n_prev) %>%
     # tidy up
-    select(-n, -n_prev) %>%
-    rename(n = n_change) %>%
+    select(-'n', -'n_prev') %>%
+    rename(n = 'n_change') %>%
     # define the group category for subsequent linking
     mutate(level = "Change in numbers reporting problems")
   
   # summary: rankings
   summary_rank <- summary_problems_change %>%
-    select(-n, -level) %>%
-    group_by(fu) %>%
+    select(-'n', -'level') %>%
+    group_by(.data$fu) %>%
     # remove NA entries
-    filter(!is.na(freq)) %>%
+    filter(!is.na(.data$freq)) %>%
     # define rank
-    mutate(n = rank(freq)) %>%
+    mutate(n = rank(.data$freq)) %>%
     # define the group category for subsequent linking
     mutate(level = "Rank of dimensions in terms of % changes")
   
@@ -490,14 +483,14 @@
   
   # summary: missing data
   summary_na <- df %>%
-    group_by(eq5d, fu) %>%
-    summarise(n = sum(is.na(value)), n_total = n(), .groups = "drop") %>%
+    group_by(eq5d, .data$fu) %>%
+    summarise(n = sum(is.na(.data$value)), n_total = n(), .groups = "drop") %>%
     # calculate percentage
-    mutate(freq = n / n_total) %>%
+    mutate(freq = n / .data$n_total) %>%
     # define the group category for subsequent linking
     mutate(level = "Missing data") %>%
     # tidy up
-    select(-n_total)
+    select(-'n_total')
   
   # combine and tidy up
   levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
@@ -511,12 +504,12 @@
     # reshape into a wide format 
     mutate(eq5d = factor(eq5d, levels = levels_eq5d)) %>%
     arrange(eq5d) %>%
-    pivot_wider(id_cols = level, 
+    pivot_wider(id_cols = 'level', 
                 names_from = c("eq5d", "fu"), 
                 values_from = c("n", "freq"),
                 names_glue = "{.value}_{fu}_{eq5d}") %>%
     # arrange rows
-    arrange(level = factor(level, 
+    arrange(level = factor(.data$level, 
                            levels = c(sort(unique(summary_dim$level)), 
                                       unique(summary_total$level),
                                       unique(summary_problems$level),
@@ -524,14 +517,12 @@
                                       unique(summary_rank$level),
                                       unique(summary_na$level)))) %>%
     # arrange columns
-    select(level, !!!syms(apply(expand.grid(c("n", "freq"), as.character(levels_fu), levels_eq5d), 
+    select('level', !!!syms(apply(expand.grid(c("n", "freq"), as.character(levels_fu), levels_eq5d), 
                                 1, paste, collapse = "_")))
   
   # return value
   return(retval)
 }
-
-
 
 #' .pchctab: Changes in health according to the PCHC (Paretian Classification of Health Change)
 #' 
@@ -547,7 +538,8 @@
 #' @examples
 #' .pchctab(df = example_data, name_groupvar = "surgtype", name_id = "id")
 #' @export
-#'
+#' @importFrom rlang .data
+
 .pchctab <- function(df,
                   name_id,
                   name_groupvar,
@@ -591,7 +583,7 @@
   df <- .prep_fu(df = df, name = name_fu, levels = levels_fu)
   # sort by id - groupvar - time
   df <- df %>%
-    arrange(id, groupvar, fu)
+    arrange(id, .data$groupvar, .data$fu)
   # check uniqueness of id-groupvar-fu combinations
   .check_uniqueness(df, group_by = c("id", "groupvar", "fu"))
   
@@ -646,13 +638,13 @@
   # combine & tidy up
   retval <- tmp %>%
     # reshape into a long format to subsequently impose order on columns in pivot_wider
-    pivot_longer(cols = n:p) %>%
+    pivot_longer(cols = 'n':'p') %>%
     # finally reshape wider
-    pivot_wider(id_cols = state, 
-                names_from = c(groupvar, fu, name), 
-                values_from = value,
+    pivot_wider(id_cols = 'state', 
+                names_from = c('groupvar', 'fu', 'name'), 
+                values_from = 'value',
                 # fill NAs with 0
-                values_fill = list(value = 0))
+                values_fill = list('value' = 0))
   #retval <- retval[c(1:4,6,5),]
   
   # return value
@@ -660,9 +652,7 @@
 }
 
 
-
-
-#' Wrapper to determine Paretian Classification of Health Change (PCHC)
+#' Wrapper to determine Paretian Classification of Health Change
 #' 
 #' This internal function determines Paretian Classification of Health Change (PCHC) for each combination of the variables specified in the `group_by` argument. 
 #' It is used in the code for table_2_4-table_2_5 and figure_2_1-figure_2_4. 
@@ -683,7 +673,8 @@
 #'                  ad = c(1, 1, 1, 1))
 #' .pchc(df, level_fu_1 = 1, add_noprobs = TRUE)
 #' @export
-#' 
+#' @importFrom rlang .data
+
 .pchc <- function(df, level_fu_1, add_noprobs = FALSE) {
   
   levels_eq5d <- c("mo", "sc", "ua", "pd", "ad")
@@ -704,9 +695,9 @@
                                           TRUE ~ !!sym(dom_diff))) %>%
       mutate(
         # contribution to positive differences
-        better = better + (!!sym(dom_diff) > 0),
+        better = .data$better + (!!sym(dom_diff) > 0),
         # contribution to negative differences
-        worse = worse + (!!sym(dom_diff) < 0))
+        worse = .data$worse + (!!sym(dom_diff) < 0))
   }
   
   # classify each combination
@@ -715,13 +706,13 @@
     mutate(state = 
              case_when(
                # no change
-               better == 0 & worse == 0 ~ "No change",
+               .data$better == 0 & .data$worse == 0 ~ "No change",
                # at least one dimension better & nothing worse
-               better > 0 & worse == 0 ~ "Improve",
+               .data$better > 0 & .data$worse == 0 ~ "Improve",
                # at least one dimension worse & nothing better
-               worse > 0 & better == 0 ~ "Worsen",
+               .data$worse > 0 & .data$better == 0 ~ "Worsen",
                # at least one dimension better & at least one dimension worse
-               better > 0 & worse > 0 ~ "Mixed change"
+               .data$better > 0 & .data$worse > 0 ~ "Mixed change"
              )) 
   
   # separate classification for those without problems if required
@@ -730,7 +721,7 @@
       # no change & 11111 at the second timepoint means 11111 at the first timepoint
       # so enough to check for 11111 at the classifications stage
       mutate(noprobs = 
-               (mo == 1 & sc == 1 & ua == 1 & pd == 1 & ad == 1)) %>%
+               (.data$mo == 1 & .data$sc == 1 & .data$ua == 1 & .data$pd == 1 & .data$ad == 1)) %>%
       mutate(state_noprobs = case_when((state == "No change" & noprobs) ~ "No problems",
                                          TRUE ~ state))
   }
@@ -755,8 +746,8 @@
 #' @importFrom stats median quantile sd
 #' @importFrom moments kurtosis
 #' @export
-#' 
-#' 
+#' @importFrom rlang .data
+
 .summary_cts_by_fu <- function(df, name_v) {
   
   ### prepare dataset ###
@@ -766,31 +757,31 @@
   
   # summarise non-NA values
   summary <- df %>%
-    filter(!is.na(v)) %>%
-    group_by(fu) %>%
-    summarise(Mean = mean(v),
-              `Standard error` = sd(v) / sqrt(n()),
-              Median = median(v),
-              Mode = .getmode(v),
-              `Standard deviation` = sd(v),
-              Kurtosis = kurtosis(v),
-              Skewness = skewness(v),
-              Minimum = min(v),
-              Maximum = max(v),
-              Range = max(v) - min(v),
+    filter(!is.na(.data$v)) %>%
+    group_by(.data$fu) %>%
+    summarise(Mean = mean(.data$v),
+              `Standard error` = sd(.data$v) / sqrt(n()),
+              Median = median(.data$v),
+              Mode = .getmode(.data$v),
+              `Standard deviation` = sd(.data$v),
+              Kurtosis = kurtosis(.data$v),
+              Skewness = skewness(.data$v),
+              Minimum = min(.data$v),
+              Maximum = max(.data$v),
+              Range = max(.data$v) - min(.data$v),
               Observations = n())
   
   # summarise total and NA values
   summary_total_na <- df %>%
-    group_by(fu) %>%
-    summarise(`Missing (n)` = sum(is.na(v)),
+    group_by(.data$fu) %>%
+    summarise(`Missing (n)` = sum(is.na(.data$v)),
               `Total sample` = n()) %>%
-    mutate(`Missing (%)` = `Missing (n)` / `Total sample`)
+    mutate(`Missing (%)` = .data$`Missing (n)` / .data$`Total sample`)
   
   # combine and tidy up
   retval <- merge(summary, summary_total_na) %>%
-    pivot_longer(-fu) %>%
-    pivot_wider(id_cols = name, names_from = fu, values_from = value)
+    pivot_longer(-'fu') %>%
+    pivot_wider(id_cols = 'name', names_from = 'fu', values_from = 'value')
   
   return(retval)
 }
@@ -808,18 +799,19 @@
 #'                  utility = c(0.5, 0.7, 0.8, 0.9))
 #' .summary_table_4_3(df, group_by = "group")
 #' @export
-#' 
+#' @importFrom rlang .data
+
 .summary_table_4_3 <- function(df, group_by) {
   
   retval <- df %>%
     group_by_at(group_by) %>%
-    summarise(Mean = mean(utility, na.rm = TRUE),
-              `Standard error` = sd(utility, na.rm = TRUE) / sqrt(sum(!is.na(utility))),
-              Median = median(utility, na.rm = TRUE),
-              `25th` = quantile(utility, probs = 0.25, na.rm = TRUE),
-              `75th` = quantile(utility, probs = 0.75, na.rm = TRUE),
-              N = sum(!is.na(utility)),
-              Missing = sum(is.na(utility)), 
+    summarise(Mean = mean(.data$utility, na.rm = TRUE),
+              `Standard error` = sd(.data$utility, na.rm = TRUE) / sqrt(sum(!is.na(.data$utility))),
+              Median = median(.data$utility, na.rm = TRUE),
+              `25th` = quantile(.data$utility, probs = 0.25, na.rm = TRUE),
+              `75th` = quantile(.data$utility, probs = 0.75, na.rm = TRUE),
+              N = sum(!is.na(.data$utility)),
+              Missing = sum(is.na(.data$utility)), 
               .groups = "drop")
   
   return(retval)
@@ -838,18 +830,19 @@
 #'                  utility = c(0.5, 0.7, 0.8, 0.9))
 #' .summary_table_4_4(df, group_by = "group")
 #' @export
-#' 
+#' @importFrom rlang .data
+ 
 .summary_table_4_4 <- function(df, group_by) {
   
   retval <- df %>%
     group_by_at(group_by) %>%
-    summarise(Mean = mean(utility, na.rm = TRUE),
-              `Standard error` = sd(utility, na.rm = TRUE) / sqrt(sum(!is.na(utility))),
-              `25th Percentile` = quantile(utility, probs = 0.25, na.rm = TRUE),
-              `50th Percentile (median)` = median(utility, na.rm = TRUE),
-              `75th Percentile` = quantile(utility, probs = 0.75, na.rm = TRUE),
-              n = sum(!is.na(utility)),
-              Missing = sum(is.na(utility)),
+    summarise(Mean = mean(.data$utility, na.rm = TRUE),
+              `Standard error` = sd(.data$utility, na.rm = TRUE) / sqrt(sum(!is.na(.data$utility))),
+              `25th Percentile` = quantile(.data$utility, probs = 0.25, na.rm = TRUE),
+              `50th Percentile (median)` = median(.data$utility, na.rm = TRUE),
+              `75th Percentile` = quantile(.data$utility, probs = 0.75, na.rm = TRUE),
+              n = sum(!is.na(.data$utility)),
+              Missing = sum(is.na(.data$utility)),
               .groups = "drop"
     )
   
@@ -864,7 +857,7 @@
 #' @param df A data frame containing a `utility` column.
 #' @param group_by A character vector of column names to group by.
 #' @return A data frame with the mean, lower bound, and upper bound of the 95% confidence interval of `utility` grouped by the `group_by` variables.
-#' examples
+#' @examples
 #' df <- data.frame(group = c("A", "A", "B", "B"), 
 #'                  utility = c(0.5, 0.7, 0.8, 0.9))
 #' .summary_mean_ci(df, group_by = "group")
@@ -874,11 +867,11 @@
   
   retval <- df %>%
     group_by_at(group_by) %>%
-    filter(!is.na(utility)) %>%
-    summarise(mean = mean(utility), 
-              se = sd(utility) / sqrt(n())) %>%
-    mutate(ci_lb = mean - 1.96 * se, ci_ub = mean + 1.96 * se) %>%
-    select(-se)
+    filter(!is.na(.data$utility)) %>%
+    summarise(mean = mean(.data$utility), 
+              se = sd(.data$utility) / sqrt(n())) %>%
+    mutate(ci_lb = .data$mean - 1.96 * .data$se, ci_ub = .data$mean + 1.96 * .data$se) %>%
+    select(-'se')
   
   return(retval)
 }
@@ -935,9 +928,11 @@ return(p)
 
 }
 
-#' Wrapper to generate Paretian Classification of Health Change (PCHC) plot by dimension
+#' Wrapper to generate Paretian Classification of Health Change plot by dimension
 #'
-#' This internal function plots Paretian Classification of Health Change (PCHC) by dimension. The input is a data frame containing the information to plot, and the plot will contain bars representing the proportion of the total data that falls into each dimension, stacked by covariate.
+#' This internal function plots Paretian Classification of Health Change (PCHC) by dimension. 
+#' The input is a data frame containing the information to plot, and the plot will contain bars representing 
+#' the proportion of the total data that falls into each dimension, stacked by covariate.
 #' The wrapper is used in Figures 2.2-2.4.
 #'
 #' @param plot_data A data frame containing information to plot, with columns for name (the dimensions to plot), p (the proportion of the total data falling into each dimension), and fu (the follow-up).
@@ -956,7 +951,7 @@ return(p)
 #' 
 .pchc_plot_by_dim <- function(plot_data, ylab, title, cols, text_rotate = FALSE) {
   
-  p <- ggplot(plot_data, aes(x = name, y = p, fill = fu)) + 
+  p <- ggplot(plot_data, aes(x = .data$name, y = p, fill = .data$fu)) + 
     # bar chart
     geom_bar(stat = "identity", position = "dodge") + 
     # manipuilate x-axis
