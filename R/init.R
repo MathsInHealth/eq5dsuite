@@ -19,14 +19,18 @@
   if('eq.env' %in% names(.Options)) {
     pkgenv <- getOption('eq.env')
   } else {
+    #options("eq.env" = (pkgenv <- new.env(parent=emptyenv())))
+    default_cache_path <- file.path(tempdir(), 'eq5d-suite-cache')
     options("eq.env" = (pkgenv <- new.env(parent=emptyenv())))
+    pkgenv$cache_path <- default_cache_path
   }
-  assign(x = "cache_path", value = find_cache_dir('eq5d-suite'), envir = pkgenv)
+  #assign(x = "cache_path", value = find_cache_dir('eq5d-suite'), envir = pkgenv)
+  assign(x = "cache_path", value = pkgenv$cache_path, envir = pkgenv)
   
-  fexist <- F
+  fexist <- FALSE
   if(dir.exists(pkgenv$cache_path)) {
     if(file.exists(file.path(pkgenv$cache_path, "cache.Rdta"))) {
-      fexist <- T
+      fexist <- TRUE
       load(file.path(pkgenv$cache_path, "cache.Rdta"), envir = pkgenv)
       # load(file.path(pkgenv$cache_path, "cache_global.Rdta"), envir = globalenv())
     }

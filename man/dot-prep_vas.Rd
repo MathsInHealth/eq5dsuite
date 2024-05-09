@@ -20,8 +20,6 @@ The function prepares the data for VAS (Visual Analogue Scale) analyses.
 \examples{
 df <- data.frame(vas_score = c(20, 50, 80, NA, 100))
 .prep_vas(df = df, name = "vas_score")
-\dontrun{
 df <- data.frame(vas_score = c(20.5, 50, 80, NA, 100))
 .prep_vas(df = df, name = "vas_score")
-}
 }

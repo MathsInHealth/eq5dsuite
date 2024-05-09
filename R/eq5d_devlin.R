@@ -588,9 +588,10 @@ table_1_3_2 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_3_3(df = example_data, 
-#'           names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
-#'           eq5d_version = "5L", 
+#' df <- example_data[example_data$surgtype == "Knee", ]
+#'  table_1_3_3(df = df,
+#'           names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'           eq5d_version = "5L",
 #'           country = "USA")
 #' @importFrom rlang .data
 
@@ -637,7 +638,7 @@ table_1_3_3 <- function(df,
     # order rows
     arrange(.data$utility) %>%
     # add row totals
-    mutate(Total = sum(c_across())) %>%
+    mutate(Total = sum(c_across(everything()))) %>%
     # tidy up
     rename(`EQ-5D Value` = 'utility')
   

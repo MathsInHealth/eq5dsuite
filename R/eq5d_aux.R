@@ -100,9 +100,7 @@
 #' @return A data frame with an additional column named `utility` containing the calculated utility values. If the input country name is not found in the country_codes dataset, a list of available codes is printed, and subsequentyl an error message is displayed and the function stops.
 #' @examples
 #' df <- data.frame(state = c("11111", "11123", "32541"))
-#' \dontrun{
 #' .add_utility(df, "5L", "DK")
-#' }
 #' @export
 #' 
 .add_utility <- function(df, eq5d_version, country) {
@@ -256,10 +254,8 @@
 #' @examples
 #' df <- data.frame(vas_score = c(20, 50, 80, NA, 100))
 #' .prep_vas(df = df, name = "vas_score")
-#' \dontrun{
 #' df <- data.frame(vas_score = c(20.5, 50, 80, NA, 100))
 #' .prep_vas(df = df, name = "vas_score")
-#' }
 #' @export
 #' 
 .prep_vas <- function(df, name) {
@@ -292,16 +288,13 @@
 }
 
 #' Check the uniqueness of groups
-#'
 #' This function takes a data frame `df` and a vector of columns `group_by`, and checks whether the combinations of values in the columns specified by `group_by` are unique. If the combinations are not unique, a warning message is printed.
-#'
 #' @param df A data frame.
 #' @param group_by A character vector of column names in `df` that specify the groups to check for uniqueness.
-#' @return NULL
+#' @return No return value, called for side effects: it will stop with an error if any group combinations are not unique.
 #' @examples
-#' 
-#' df <- data.frame(id = c(1, 1, 1, 1, 2, 2), 
-#'                  fu = rep(c("baseline", "follow-up"), 3), 
+#' df <- data.frame(id = c(1, 1, 1, 1, 2, 2),
+#'                  fu = rep(c("baseline", "follow-up"), 3),
 #'                  value = rnorm(6))
 #' .check_uniqueness(df, c("id", "fu"))
 #' @export

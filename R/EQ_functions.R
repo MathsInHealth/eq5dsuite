@@ -156,6 +156,8 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' @param df A data.frame or file name pointing to csv file. The contents of the data.frame or csv file should be exactly two columns: state, containing a list of all 3125 (for 5L) or 243 (for 3L) EQ-5D health state vectors, and a column of corresponding utility values, with a suitable name.
 #' @param version Version of the EQ-5D instrument. Can take values 5L (default) or 3L.
 #' @param country Optional string. If not NULL, will be used as a country description for the user-defined value set.
+#' @param persistent Boolean indicating whether this value set should be persistently saved. 
+#' @param savePath A path where the cache data should be saved when not using persistent storage. 
 #' @param description Optional string. If not NULL, will be used as a descriptive text for the user-defined value set. 
 #' @param code2L Optional string. If not NULL, will be used as the two-digit code for the value set. Must be different from any existing national value set code.
 #' @param code3L Optional string. If not NULL, will be used as the three-digit code for the value set. Must be different from any existing national value set code.
@@ -164,10 +166,11 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' # make nonsense value set
 #' new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
 #' # Add as value set for Fantasia
-#' eqvs_add(new_df, version = "5L", country = 'Fantasia')
+#' eqvs_add(new_df, version = "5L", country = 'Fantasia', persistent = FALSE, savePath = tempdir())
 #' @importFrom utils read.csv
 #' @export
-eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, code2L = NULL, code3L = NULL) {
+
+eqvs_add <- function(df, version = "5L", country = NULL, persistent = FALSE, savePath = NULL, description = NULL, code2L = NULL, code3L = NULL) {
   pkgenv <- getOption("eq.env")
   if(inherits(df, 'character')) {
     if(!file.exists(df)) stop('File named ', df, ' does not appear to exist. Exiting.')
@@ -186,10 +189,10 @@ eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, cod
   # check correct number of rows
   n <- j^5
   if(!NROW(df) == n) stop(paste0("df should have exactly ", n, " rows."))
-  # message(NROW(pkgenv$states_5L))
   # check all states present
   if(!all(df[,1] %in% pkgenv[[states_str]]$state)) stop(paste0("First column of df should contain all ", eq5d_str, " health state indexes exactly once."))
   df <- df[match(pkgenv[[states_str]]$state, df[,1]),]
+  # check country
   if(!is.null(country)) {
     if(length(country)>1) {
       warning('Length of country argument > 1, first item used.')
@@ -209,10 +212,10 @@ eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, cod
   }
   
   if(any(is.na(df[,2]*-1.1))) stop("Non-numeric values in second column of df.")
+  
   # No problems
   tmp <- pkgenv[[uservsets_str]]
   tmp[, thisName] <- df[, 2]
-  
   assign(x = uservsets_str, value = tmp, envir = pkgenv)
   
   tmp <- data.frame(Name = ifelse(is.null(description), NA, description), 
@@ -224,30 +227,46 @@ eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, cod
   
   assign(x = user_defined_str, value = tmp, envir = pkgenv)
   
-  # assign(x = 'xwsets', value = pkgenv$probs %*% cbind(as.matrix(.vsets5L[, -1, drop = F]), as.matrix(pkgenv$uservsets5L[,-1, drop = F])), envir = pkgenv)
-  
-  yesno <- 'n'
-  if(file.exists(file.path(pkgenv$cache_path, "cache.Rdta"))) {
-    save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
-    message('User-defined value set saved.')
+  # Save to savePath directory
+  if(persistent){
+    path <- pkgenv$cache_path
   } else {
-    message('If you wish for the user-defined reverse value set to be persistent, a file needs to be saved to the hard-drive.')
-    message('The file would be saved to: ', pkgenv$cache_path)
-    message('Please type "y", "Y", "Yes", or "yes" to allow this file to be saved. All other inputs will be interpreted as "no".')
-    yesno = readline(prompt = "Save? (Yes/No) : ")  
-    if(tolower(yesno) %in% c("yes", "y")) {
-      message('Persistent data will be saved.')
-      if(!dir.exists(pkgenv$cache_path)) dir.create2(pkgenv$cache_path, recursive = TRUE)
-      save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
-      message('User-defined value set saved.')
-      
+    if (is.null(savePath) || !nzchar(savePath)) {
+      stop("Non-persistent storage requires a valid 'savePath'.")
     } else {
-      message('Persistent data will not be saved; any user-defined value sets will disappear when this session is closed.')
+      if (!dir.exists(savePath)) {
+        dir.create(savePath, recursive = TRUE)
+      } else {
+        path <- savePath
+      }
     }
   }
   
+  save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(path, 'cache.Rdta'))
+  message(paste0('User-defined value set saved to ', file.path(path, 'cache.Rdta.')))
+  
+  
+  # yesno <- 'n'
+  # if(file.exists(file.path(pkgenv$cache_path, "cache.Rdta"))) {
+  #   save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
+  #   message('User-defined value set saved.')
+  # } else {
+  #   message('If you wish for the user-defined reverse value set to be persistent, a file needs to be saved to the hard-drive.')
+  #   message('The file would be saved to: ', pkgenv$cache_path)
+  #   message('Please type "y", "Y", "Yes", or "yes" to allow this file to be saved. All other inputs will be interpreted as "no".')
+  #   yesno = readline(prompt = "Save? (Yes/No) : ")  
+  #   if(tolower(yesno) %in% c("yes", "y")) {
+  #     message('Persistent data will be saved.')
+  #     if(!dir.exists(pkgenv$cache_path)) dir.create2(pkgenv$cache_path, recursive = TRUE)
+  #     save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
+  #     message('User-defined value set saved.')
+  #   } else {
+  #     message('Persistent data will not be saved; any user-defined value sets will disappear when this session is closed.')
+  #   }
+  # }
+  
   .fixPkgEnv()
-  1
+  return(TRUE)
 }
 
 #' @title eqvs_drop
@@ -259,7 +278,7 @@ eqvs_add <- function(df, version = "5L", country = NULL, description = NULL, cod
 #' # make nonsense value set
 #' new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
 #' # Add as value set for Fantasia
-#' eqvs_add(new_df, version = "5L", country = 'Fantasia')
+#' eqvs_add(new_df, version = "5L", country = 'Fantasia', persistent = FALSE, savePath = tempdir())
 #' # Drop value set for Fantasia
 #' eqvs_drop('Fantasia')
 #' @export
@@ -324,8 +343,6 @@ eqvs_drop <- function(country = NULL, version = "5L") {
   message('Exiting.')
   return(FALSE)
 }
-
-
 
 #' @title eqvs_display
 #' @description Display available value sets, which can also be used as (reverse) crosswalks.
