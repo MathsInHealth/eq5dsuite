@@ -246,12 +246,14 @@ eqvs_add <- function(df, version = "5L", country = NULL, saveOption = 1, savePat
     }
   }
   
+  if(saveOption == 1){
+    .fixPkgEnv(saveCache = FALSE)
+  }
   if (saveOption == 2 || saveOption == 3) {
-    save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(path, 'cache.Rdta'))
+    filePath <- file.path(path, 'cache.Rdta.')
+    .fixPkgEnv(saveCache = TRUE, filePath = filePath)
     message(paste0('Cache data saved to ', file.path(path, 'cache.Rdta.')))
   }
-  
-  .fixPkgEnv()
 
   return(TRUE)
 }

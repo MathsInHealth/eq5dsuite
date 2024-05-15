@@ -35,10 +35,10 @@
       load(cache_file, envir = pkgenv)
   } 
 
-  .fixPkgEnv()
+  .fixPkgEnv(saveCache = FALSE)
 }
 
-.fixPkgEnv <- function() {
+.fixPkgEnv <- function(saveCache = FALSE, filePath = NULL) {
   pkgenv <- getOption('eq.env')
   
   # if(!'EQrxwmod7' %in% names(pkgenv)) assign(x = "EQrxwmod7", .EQrxwmod7, envir = pkgenv)
@@ -75,5 +75,9 @@
     rownames(tmp) <- NULL
     tmp
   }))
-  if(file.exists(file.path(pkgenv$cache_path, 'cache.Rdta'))) save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
+  
+  if(saveCache){
+    save(list = ls(envir = pkgenv), envir = pkgenv, file = filePath)
+  }
+  
 }
