@@ -172,6 +172,11 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' @export
 
 eqvs_add <- function(df, version = "5L", country = NULL, saveOption = 1, savePath = NULL, description = NULL, code2L = NULL, code3L = NULL) {
+  # Ensure saveOption is either 1, 2, or 3
+  if (!saveOption %in% c(1, 2, 3)) {
+    stop("Invalid 'saveOption'. It must be 1, 2, or 3.")
+  }
+  
   pkgenv <- getOption("eq.env")
   if(inherits(df, 'character')) {
     if(!file.exists(df)) stop('File named ', df, ' does not appear to exist. Exiting.')
@@ -285,16 +290,26 @@ eqvs_load <- function(loadPath) {
 #' @description Drop user-defined EQ-5D value set to reverse crosswalk options.
 #' @param version Version of the EQ-5D instrument. Can take values 5L (default) or 3L.
 #' @param country Optional string. If NULL, a list of current user-defined value sets will be provided for selection. If set, and matching an existing user-defined value set, a prompt will be given as to whether the value set should be deleted. 
+#' @param saveOption Integer indicating how the cache data should be saved. 1: Do not save (default), 2: Save in package folder, 3: Save in another path.
+#' @param savePath A path where the cache data should be saved when `saveOption` is 3. Please use `eqvs_load` to load it in your next session.
 #' @return True/False, indicating success or error.
 #' @examples 
-#' # make nonsense value set
-#' new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
-#' # Add as value set for Fantasia
-#' eqvs_add(new_df, version = "5L", country = 'Fantasia', saveOption = 1)
-#' # Drop value set for Fantasia
-#' eqvs_drop('Fantasia')
+#' \donttest{
+#'   # make nonsense value set
+#'   new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
+#'   # Add as value set for Fantasia
+#'   eqvs_add(new_df, version = "5L", country = 'Fantasia', saveOption = 1)
+#'   # Drop value set for Fantasia
+#'   eqvs_drop('Fantasia', saveOption = 1)
+#' }
 #' @export
-eqvs_drop <- function(country = NULL, version = "5L") {
+eqvs_drop <- function(country = NULL, version = "5L", saveOption = 1, savePath = NULL) {
+  
+  # Ensure saveOption is either 1, 2, or 3
+  if (!saveOption %in% c(1, 2, 3)) {
+    stop("Invalid 'saveOption'. It must be 1, 2, or 3.")
+  }
+  
   pkgenv <- getOption("eq.env")
   if(length(country)>1) {
     message('Length of country argument larger than 1, only the first element will be used.')
@@ -308,8 +323,6 @@ eqvs_drop <- function(country = NULL, version = "5L") {
   
   states_str <- paste0("states_", version)
   eq5d_str <- paste0("EQ-5D-", version)
-  
-  
   
   if(!user_defined_str %in% names(pkgenv)) {
     message(paste0("No user-defined value sets exist among the ", version, " datasets. Exiting."))
@@ -333,7 +346,31 @@ eqvs_drop <- function(country = NULL, version = "5L") {
           tmp <- pkgenv[[uservsets_str]]
           tmp[, which(colnames(tmp) == country)] <- NULL
           assign(x = uservsets_str, value = tmp, envir = pkgenv)
-          .fixPkgEnv()
+          # Handle save options
+          if (saveOption == 2) {
+            path <- pkgenv$cache_path
+            if (!dir.exists(path)) {
+              dir.create(path, recursive = TRUE)
+            }
+          } else if (saveOption == 3) {
+            if (is.null(savePath) || !nzchar(savePath)) {
+              stop("Option 3 requires a valid 'savePath'.")
+            } else {
+              if (!dir.exists(savePath)) {
+                stop("The specified 'savePath' does not exist.")
+              } else {
+                path <- savePath
+              }
+            }
+          }
+          if(saveOption == 1){
+            .fixPkgEnv(saveCache = FALSE)
+          }
+          if (saveOption == 2 || saveOption == 3) {
+            filePath <- file.path(path, 'cache.Rdta.')
+            .fixPkgEnv(saveCache = TRUE, filePath = filePath)
+            message(paste0('Cache data saved to ', file.path(path, 'cache.Rdta.')))
+          }
           return(TRUE)
         } else {
           message("OK. Exiting.")
