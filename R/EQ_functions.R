@@ -156,8 +156,9 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' @param df A data.frame or file name pointing to csv file. The contents of the data.frame or csv file should be exactly two columns: state, containing a list of all 3125 (for 5L) or 243 (for 3L) EQ-5D health state vectors, and a column of corresponding utility values, with a suitable name.
 #' @param version Version of the EQ-5D instrument. Can take values 5L (default) or 3L.
 #' @param country Optional string. If not NULL, will be used as a country description for the user-defined value set.
-#' @param persistent Boolean indicating whether this value set should be persistently saved. 
-#' @param savePath A path where the cache data should be saved when not using persistent storage. 
+#' @param saveOption Integer indicating how the cache data should be saved. 1: Do not save (default), 2: Save in package folder, 3: Save in another path.
+#' @param savePath A path where the cache data should be saved when `saveOption` is 3. Please use `eqvs_load` to load it in your next session.
+#' @param description Optional string. If not NULL, will be used as a descriptive text for the user-defined value set. 
 #' @param description Optional string. If not NULL, will be used as a descriptive text for the user-defined value set. 
 #' @param code2L Optional string. If not NULL, will be used as the two-digit code for the value set. Must be different from any existing national value set code.
 #' @param code3L Optional string. If not NULL, will be used as the three-digit code for the value set. Must be different from any existing national value set code.
@@ -166,11 +167,11 @@ make_dummies <- function(df, version = "5L", dim.names = c("mo", "sc", "ua", "pd
 #' # make nonsense value set
 #' new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
 #' # Add as value set for Fantasia
-#' eqvs_add(new_df, version = "5L", country = 'Fantasia', persistent = FALSE, savePath = tempdir())
+#' eqvs_add(new_df, version = "5L", country = 'Fantasia', saveOption = 1)
 #' @importFrom utils read.csv
 #' @export
 
-eqvs_add <- function(df, version = "5L", country = NULL, persistent = FALSE, savePath = NULL, description = NULL, code2L = NULL, code3L = NULL) {
+eqvs_add <- function(df, version = "5L", country = NULL, saveOption = 1, savePath = NULL, description = NULL, code2L = NULL, code3L = NULL) {
   pkgenv <- getOption("eq.env")
   if(inherits(df, 'character')) {
     if(!file.exists(df)) stop('File named ', df, ' does not appear to exist. Exiting.')
@@ -227,47 +228,54 @@ eqvs_add <- function(df, version = "5L", country = NULL, persistent = FALSE, sav
   
   assign(x = user_defined_str, value = tmp, envir = pkgenv)
   
-  # Save to savePath directory
-  if(persistent){
+  # Handle save options
+  if (saveOption == 2) {
     path <- pkgenv$cache_path
-  } else {
+    if (!dir.exists(path)) {
+      dir.create(path, recursive = TRUE)
+    }
+  } else if (saveOption == 3) {
     if (is.null(savePath) || !nzchar(savePath)) {
-      stop("Non-persistent storage requires a valid 'savePath'.")
+      stop("Option 3 requires a valid 'savePath'.")
     } else {
-      if (!dir.exists(savePath)) {
-        dir.create(savePath, recursive = TRUE)
-      } else {
-        path <- savePath
+      if (!dir.exists(path)) {
+        stop("The specified 'savePath' does not exist.")
       }
     }
   }
   
-  save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(path, 'cache.Rdta'))
-  message(paste0('User-defined value set saved to ', file.path(path, 'cache.Rdta.')))
-  
-  
-  # yesno <- 'n'
-  # if(file.exists(file.path(pkgenv$cache_path, "cache.Rdta"))) {
-  #   save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
-  #   message('User-defined value set saved.')
-  # } else {
-  #   message('If you wish for the user-defined reverse value set to be persistent, a file needs to be saved to the hard-drive.')
-  #   message('The file would be saved to: ', pkgenv$cache_path)
-  #   message('Please type "y", "Y", "Yes", or "yes" to allow this file to be saved. All other inputs will be interpreted as "no".')
-  #   yesno = readline(prompt = "Save? (Yes/No) : ")  
-  #   if(tolower(yesno) %in% c("yes", "y")) {
-  #     message('Persistent data will be saved.')
-  #     if(!dir.exists(pkgenv$cache_path)) dir.create2(pkgenv$cache_path, recursive = TRUE)
-  #     save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(pkgenv$cache_path, 'cache.Rdta'))
-  #     message('User-defined value set saved.')
-  #   } else {
-  #     message('Persistent data will not be saved; any user-defined value sets will disappear when this session is closed.')
-  #   }
-  # }
+  if (saveOption == 2 || saveOption == 3) {
+    save(list = ls(envir = pkgenv), envir = pkgenv, file = file.path(path, 'cache.Rdta'))
+    message(paste0('Cache data saved to ', file.path(path, 'cache.Rdta.')))
+  }
   
   .fixPkgEnv()
+
   return(TRUE)
 }
+
+#' @title eqvs_load
+#' @description Load cache data from a specified path.
+#' @param loadPath The path from which to load the cache data.
+#' @return TRUE if loading is successful, FALSE otherwise.
+#' @examples 
+#' # Load cache data from a specified path
+#' eqvs_load(loadPath = tempdir())
+#' @export
+eqvs_load <- function(loadPath) {
+  pkgenv <- getOption("eq.env")
+  if (is.null(loadPath) || !nzchar(loadPath)) {
+    stop("A valid 'loadPath' is required.")
+  }
+  cacheFile <- file.path(loadPath, 'cache.Rdta')
+  if (!file.exists(cacheFile)) {
+    stop("Cache file not found at specified 'loadPath'.")
+  }
+  load(cacheFile, envir = pkgenv)
+  message(paste0('Cache data loaded from ', cacheFile, '.'))
+  return(TRUE)
+}
+
 
 #' @title eqvs_drop
 #' @description Drop user-defined EQ-5D value set to reverse crosswalk options.

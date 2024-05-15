@@ -16,25 +16,25 @@
 ##  along with eqxwr If not, see <http://www.gnu.org/licenses/>.
 
 .onLoad <- function(libname, pkgname) {
+  # Check if 'eq.env' is already an option
   if('eq.env' %in% names(.Options)) {
     pkgenv <- getOption('eq.env')
   } else {
-    #options("eq.env" = (pkgenv <- new.env(parent=emptyenv())))
-    default_cache_path <- file.path(tempdir(), 'eq5d-suite-cache')
     options("eq.env" = (pkgenv <- new.env(parent=emptyenv())))
-    pkgenv$cache_path <- default_cache_path
   }
-  #assign(x = "cache_path", value = find_cache_dir('eq5d-suite'), envir = pkgenv)
-  assign(x = "cache_path", value = pkgenv$cache_path, envir = pkgenv)
   
+  # Assign cache path
+  cache_path <- find_cache_dir('eq5dsuite')
+  assign(x = "cache_path", value = cache_path, envir = pkgenv)
+
+  # Check if cache directory and file exist, then load
   fexist <- FALSE
-  if(dir.exists(pkgenv$cache_path)) {
-    if(file.exists(file.path(pkgenv$cache_path, "cache.Rdta"))) {
+  cache_file <- file.path(cache_path, "cache.Rdta")
+  if (dir.exists(cache_path) && file.exists(cache_file)) {
       fexist <- TRUE
-      load(file.path(pkgenv$cache_path, "cache.Rdta"), envir = pkgenv)
-      # load(file.path(pkgenv$cache_path, "cache_global.Rdta"), envir = globalenv())
-    }
-  }
+      load(cache_file, envir = pkgenv)
+  } 
+
   .fixPkgEnv()
 }
 
