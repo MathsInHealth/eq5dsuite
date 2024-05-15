@@ -242,8 +242,10 @@ eqvs_add <- function(df, version = "5L", country = NULL, saveOption = 1, savePat
         stop("The specified 'savePath' does not exist.")
       } else {
         path <- savePath
-      if (!dir.exists(path)) {
+      if (!dir.exists(savePath)) {
         stop("The specified 'savePath' does not exist.")
+      } else {
+        path <- savePath
       }
     }
   }
