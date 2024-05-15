@@ -267,9 +267,6 @@ eqvs_add <- function(df, version = "5L", country = NULL, saveOption = 1, savePat
 #' @description Load cache data from a specified path.
 #' @param loadPath The path from which to load the cache data.
 #' @return TRUE if loading is successful, FALSE otherwise.
-#' @examples 
-#' # Load cache data from a specified path
-#' eqvs_load(loadPath = tempdir())
 #' @export
 eqvs_load <- function(loadPath) {
   pkgenv <- getOption("eq.env")

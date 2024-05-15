@@ -15,7 +15,3 @@ TRUE if loading is successful, FALSE otherwise.
 \description{
 Load cache data from a specified path.
 }
-\examples{
-# Load cache data from a specified path
-eqvs_load(loadPath = tempdir())
-}
