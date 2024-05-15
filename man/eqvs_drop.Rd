@@ -21,7 +21,7 @@ Drop user-defined EQ-5D value set to reverse crosswalk options.
 # make nonsense value set
 new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
 # Add as value set for Fantasia
-eqvs_add(new_df, version = "5L", country = 'Fantasia', persistent = FALSE, savePath = tempdir())
+eqvs_add(new_df, version = "5L", country = 'Fantasia', saveOption = 1)
 # Drop value set for Fantasia
 eqvs_drop('Fantasia')
 }

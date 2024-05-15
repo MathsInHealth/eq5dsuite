@@ -8,7 +8,7 @@ eqvs_add(
   df,
   version = "5L",
   country = NULL,
-  persistent = FALSE,
+  saveOption = 1,
   savePath = NULL,
   description = NULL,
   code2L = NULL,
@@ -22,9 +22,9 @@ eqvs_add(
 
 \item{country}{Optional string. If not NULL, will be used as a country description for the user-defined value set.}
 
-\item{persistent}{Boolean indicating whether this value set should be persistently saved.}
+\item{saveOption}{Integer indicating how the cache data should be saved. 1: Do not save (default), 2: Save in package folder, 3: Save in another path.}
 
-\item{savePath}{A path where the cache data should be saved when not using persistent storage.}
+\item{savePath}{A path where the cache data should be saved when `saveOption` is 3. Please use `eqvs_load` to load it in your next session.}
 
 \item{description}{Optional string. If not NULL, will be used as a descriptive text for the user-defined value set.}
 
@@ -42,5 +42,5 @@ Add user-defined EQ-5D value set and corresponding crosswalk option.
 # make nonsense value set
 new_df <- data.frame(state = make_all_EQ_indexes(), TEST = runif(3125))
 # Add as value set for Fantasia
-eqvs_add(new_df, version = "5L", country = 'Fantasia', persistent = FALSE, savePath = tempdir())
+eqvs_add(new_df, version = "5L", country = 'Fantasia', saveOption = 1)
 }
