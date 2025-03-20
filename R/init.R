@@ -70,8 +70,8 @@
 
   EQvariants <- c('5L' = '5L', '3L' = '3L', "Y3L" = "Y3L")
   assign(x = 'country_codes', envir = pkgenv, value = lapply(EQvariants, function(EQvariant) {
-    # message(EQvariant)
-    tmp <- .cntrcodes[.cntrcodes$ISO3166Alpha2 %in% colnames(get(paste0('.vsets', EQvariant)))[-1],]
+    tmp <- .cntrcodes[.cntrcodes$Version == EQvariant & 
+                      .cntrcodes$VS_code %in% colnames(get(paste0('.vsets', EQvariant)))[-1],]
     rownames(tmp) <- NULL
     tmp
   }))

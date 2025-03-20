@@ -944,7 +944,7 @@ return(p)
 #' 
 .pchc_plot_by_dim <- function(plot_data, ylab, title, cols, text_rotate = FALSE) {
   
-  p <- ggplot(plot_data, aes(x = .data$name, y = p, fill = .data$fu)) + 
+  p <- ggplot(plot_data, aes(x = .data$name, y = p, fill = .data$groupvar)) + 
     # bar chart
     geom_bar(stat = "identity", position = "dodge") + 
     # manipuilate x-axis
@@ -962,10 +962,11 @@ return(p)
   if (text_rotate) { 
     p <- p + geom_text(aes(label = scales::percent(p, accuracy = 0.1)), 
                        position = position_dodge(width = 0.9),
-                       hjust = -0.1, angle = 90)} else {
-                         p <- p + geom_text(aes(label = scales::percent(p, accuracy = 0.1)), 
-                                            position = position_dodge(width = 0.9),
-                                            vjust = -0.5)
-                       }
+                       hjust = -0.1, angle = 90)
+  } else {
+   p <- p + geom_text(aes(label = scales::percent(p, accuracy = 0.1)), 
+                      position = position_dodge(width = 0.9),
+                      vjust = -0.5)
+  }
   return(p)
 }
