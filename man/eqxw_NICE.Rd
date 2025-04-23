@@ -15,7 +15,9 @@ eqxw_NICE(
 \arguments{
 \item{x}{A vector of 5-digit EQ-5D-5L states (domain scores) or a summary score.}
 
-\item{age}{A numeric vector or column name indicating respondent age.}
+\item{age}{A numeric vector or column name (if `x` is a data frame). Can be either:
+(1) a numeric age between 18 and 100, which will be automatically grouped into NICE-defined age bands (18-35, 35-45, 45-55, 55-65, +65), or
+(2) a factor/character/numeric vector already representing the NICE age bands with values 1-5 indicating age bands (18-35, 35-45, 45-55, 55-65, +65).}
 
 \item{male}{A numeric vector (1=male, 0=female) or column name indicating gender.}
 
@@ -30,6 +32,5 @@ A vector or data frame with crosswalked EQ-5D-3L utilities.
 Crosswalks EQ-5D-5L responses to EQ-5D-3L utilities using NICE's mapping.
 }
 \examples{
-eqxw_NICE(c(11111, 12321, 32123, 33333), age = c(30, 40, 55, 70), male = c(1, 0, 1, 0))
-eqxw_NICE(df, age = "age", male = "male")
+eqxw_NICE(c(11111, 12345, 32423, 55555), age = c(30, 40, 55, 70), male = c(1, 0, 1, 0))
 }

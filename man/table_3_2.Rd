@@ -24,5 +24,11 @@ Summary data frame
 Table 3.2 EQ-5D values: by groupvar
 }
 \examples{
-table_3_2(df = example_data, name_groupvar = "surgtype", country = "USA")
+table_3_2(
+  example_data,
+  names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+  name_groupvar = "procedure",
+  eq5d_version = "3L",
+  country = "UK"
+)
 }

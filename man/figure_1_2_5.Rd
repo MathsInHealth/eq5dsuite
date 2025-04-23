@@ -43,7 +43,7 @@ improvement, and points below indicate deterioration.
 \examples{
 tmp <- figure_1_2_5(
            df = example_data, 
-           names_eq5d = eqdims, 
+           names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
            name_fu = "time", 
            levels_fu = c("Pre-op", "Post-op"), 
            name_id = "id", 

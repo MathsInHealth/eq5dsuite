@@ -5,10 +5,13 @@
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
 #' @examples
-#' table_1_1_1(df = example_data)
-#' table_1_1_1(df = example_data, eq5d_version = "3L")
+#' table_1_1_1(
+#'  df = example_data[example_data$time == "Pre-op",],
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'  eq5d_version = "3L"
+#' )
 #' @export
-#' 
+
 table_1_1_1<- function(df, 
                       names_eq5d = NULL,
                       eq5d_version = NULL) {
@@ -26,7 +29,13 @@ table_1_1_1<- function(df,
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
 #' @examples
-#' table_1_1_2(df = example_data, name_cat = "surgtype")
+#' table_1_1_2(
+#'  df = df,
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'  name_cat = "procedure",
+#'  levels_cat = c("Hip Replacement", "Knee Replacement"),
+#'  eq5d_version = "3L"
+#' )
 #' @export
 #' 
 table_1_1_2<- function(df, 
@@ -48,10 +57,15 @@ table_1_1_2<- function(df,
 #' @param eq5d_version Version of the EQ-5D instrument
 #' @return Summary data frame.
 #' @examples
-#' table_1_2_1(df = example_data)
-#' table_1_2_1(df = example_data, name_fu = "month")
+#' table_1_2_1(
+#'   df = example_data,
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   name_fu = "time",
+#'   levels_fu = c("Pre-op" , "Post-op"),
+#'   eq5d_version = "3L"
+#' )
 #' @export
-#' 
+
 table_1_2_1<- function(df, 
                        names_eq5d = NULL,
                        name_fu = NULL,
@@ -75,9 +89,12 @@ table_1_2_1<- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_1_3(df = example_data)
-#' table_1_1_3(df = example_data, n = 5)
-#' table_1_1_3(df = example_data, eq5d_version = "3L")
+#' table_1_1_3(
+#'   df = df,
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   eq5d_version = "3L", 
+#'   n = 10 
+#' )
 #' @importFrom rlang .data
 
 table_1_1_3 <- function(df, 
@@ -169,7 +186,14 @@ table_1_1_3 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_2_2(df = example_data, name_groupvar = "surgtype", name_id = "id")
+#' table_1_2_2(
+#'   df = example_data,
+#'   name_id = "id",
+#'   name_groupvar = "procedure",
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   name_fu = "time",
+#'   levels_fu = c("Pre-op" , "Post-op")
+#' )
 #' @importFrom rlang .data
 
 table_1_2_2 <- function(df,
@@ -258,7 +282,14 @@ table_1_2_2 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_2_3(df = example_data, name_groupvar = "surgtype", name_id = "id")
+#' table_1_2_3(
+#'   df = example_data,
+#'   name_id = "id",
+#'   name_groupvar = "procedure",
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   name_fu = "time",
+#'   levels_fu = c("Pre-op" , "Post-op")
+#' )
 #' @importFrom rlang .data
 
 table_1_2_3 <- function(df, 
@@ -348,7 +379,14 @@ table_1_2_3 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_2_4(df = example_data, name_id = "id")
+#' table_1_2_4(
+#'   df = example_data,
+#'   name_id = "id",
+#'   name_groupvar = "procedure",
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   name_fu = "time",
+#'   levels_fu = c("Pre-op" , "Post-op")
+#' )
 #' @importFrom rlang .data
 
 table_1_2_4 <- function(df, 
@@ -453,8 +491,12 @@ table_1_2_4 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_3_1(df = example_data, country = "USA")
-#' table_1_3_1(df = example_data, eq5d_version = "3L", country = "USA")
+#' table_1_3_1(
+#'   df, 
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'   eq5d_version = "3L", 
+#'   country = "US"
+#' )
 #' @importFrom rlang .data
 
 table_1_3_1 <- function(df, 
@@ -519,8 +561,11 @@ table_1_3_1 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_3_2(df = example_data)
-#' table_1_3_2(df = example_data, eq5d_version = "3L")
+#' table_1_3_2(
+#'   example_data, 
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'   eq5d_version = "3L"
+#' )
 #' @importFrom rlang .data
 
 table_1_3_2 <- function(df, 
@@ -588,11 +633,12 @@ table_1_3_2 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' df <- example_data[example_data$surgtype == "Knee", ]
-#'  table_1_3_3(df = df,
-#'           names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
-#'           eq5d_version = "5L",
-#'           country = "USA")
+#' table_1_3_3(
+#'   example_data, 
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'   eq5d_version = "3L",
+#'   country = "UK"
+#' )
 #' @importFrom rlang .data
 
 table_1_3_3 <- function(df, 
@@ -656,8 +702,12 @@ table_1_3_3 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_1_3_4(df = example_data, country = "Denmark")
-#' table_1_3_4(df = example_data, eq5d_version = "3L", country = "Denmark")
+#' table_1_3_4(
+#'   example_data, 
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'   eq5d_version = "3L",
+#'   country = "UK"
+#' )
 #' @importFrom rlang .data
 
 table_1_3_4 <- function(df, 
@@ -821,7 +871,12 @@ figure_1_4_1 <- function(df, names_eq5d, eq5d_version) {
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_2_1(df = example_data)
+#' table_2_1(
+#'   example_data,
+#'   name_vas = 'vas', 
+#'   name_fu = 'time', 
+#'   levels_fu = c('Pre-op', 'Post-op')
+#' )
 #' @importFrom rlang .data
 
 table_2_1 <- function(df, 
@@ -865,7 +920,11 @@ table_2_1 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_2_2(df = example_data)
+#' table_2_2(
+#'   example_data,
+#'   name_vas = 'vas', 
+#'   add_na_total =  TRUE
+#'   )
 #' @importFrom rlang .data
 
 table_2_2 <- function(df, 

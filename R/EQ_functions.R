@@ -94,7 +94,9 @@ make_all_EQ_states <- function(version = "5L", dim.names = c("mo", "sc", "ua", "
 #' @export
 make_all_EQ_indexes <- function(version = "5L", dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   if(!length(dim.names) == 5) stop("Argument dim.names not of length 5.")
-  toEQ5Dindex(do.call(make_all_EQ_states, as.list(match.call()[-1])))
+  states <- do.call(make_all_EQ_states, list(dim.names = dim.names))
+  toEQ5Dindex(states, dim.names = dim.names)
+  #toEQ5Dindex(do.call(make_all_EQ_states, as.list(match.call()[-1])))
 }
 
 #' @title EQ_dummies
@@ -549,7 +551,7 @@ eq5d <- function(x, country = NULL, version = '5L', dim.names = c("mo", "sc", "u
 #' @param dim.names A character vector specifying the names of the EQ-5D-3L dimensions.  Default is c("mo", "sc", "ua", "pd", "ad"). 
 #' @return A vector of EQ-5D-3L values or data.frame with one column for each value set requested.
 #' @examples 
-#' eq5d3l(c(11111, 12321, 32123, 33333), 'US') # US -3L value set
+#' eq5d3l(c(11111, 12321, 32123, 33333), country = "US")
 #' eq5d3l(make_all_EQ_states('3L'), c('DK', 'CA')) # Danish and Canada -3L value sets 
 #' @export
 eq5d3l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")){
@@ -566,7 +568,7 @@ eq5d3l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"
 #' @return A vector of EQ-5D-5L values or data.frame with one column for each value set requested.
 #' @examples 
 #' eq5d5l(c(11111, 12321, 32423, 55555), 'IT') # Italy -5L value set
-#' eq5d5l(make_all_EQ_states('5L'), c('Japan', 'China')) # Japon and China -5L value sets 
+#' eq5d5l(make_all_EQ_states('5L'), c('ES', 'DE')) # Spanish and german value sets
 #' @export
 eq5d5l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")){
   argl <- as.list(match.call(expand.dots = TRUE))[-1]
@@ -584,7 +586,7 @@ eq5d5l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"
 #' # Slovenia -Y3L value set
 #' eq5dy3l(x = c(11111, 12321, 33333), country = 'SI') 
 #' # Germany and Spain -Y3L value sets 
-#' eq5dy3l(make_all_EQ_states('3L'), c('Germany', 'Spain')) 
+#' eq5dy3l(make_all_EQ_states('3L'), c('ES', 'DE')) # Spanish and german value sets
 #' @export
 eq5dy3l <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad")){
   argl <- as.list(match.call(expand.dots = TRUE))[-1]
