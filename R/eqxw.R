@@ -26,7 +26,7 @@ eqxw <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"))
   do.call(eq5d, c(as.list(match.call())[-1],version = "xw"))
 }
 
-#' @title eqxw_NICE
+#' @title eqxw_UK
 #' @description Crosswalks EQ-5D-5L responses to EQ-5D-3L utilities using NICE's mapping.
 #' @param x A vector of 5-digit EQ-5D-5L states (domain scores) or a summary score.
 #' @param age  A numeric vector or column name (if `x` is a data frame). Can be either:
@@ -37,34 +37,38 @@ eqxw <- function(x, country = NULL, dim.names = c("mo", "sc", "ua", "pd", "ad"))
 #' @param bwidth Numeric. Bandwidth for kernel smoothing when using summary scores.
 #' @return A vector or data frame with crosswalked EQ-5D-3L utilities.
 #' @examples 
-#' eqxw_NICE(c(11111, 12345, 32423, 55555), age = c(30, 40, 55, 70), male = c(1, 0, 1, 0))
+#' eqxw_UK(c(11111, 12345, 32423, 55555), age = c(30, 40, 55, 70), male = c(1, 0, 1, 0))
 #' @importFrom stats dnorm weighted.mean
 #' @export
 
-eqxw_NICE <- function(x, age, male, dim.names = c("mo", "sc", "ua", "pd", "ad"), bwidth = 0) {
+eqxw_UK <- function(x, age, male, dim.names = c("mo", "sc", "ua", "pd", "ad"), bwidth = 0) {
  
   # Load crosswalk data
   pkgenv <- getOption("eq.env")
-  eq5d_version <- "5L"
-  if (is.null(pkgenv) || is.null(pkgenv$crosswalk_NICE[[eq5d_version]])) {
+  if (is.null(pkgenv) || is.null(pkgenv$crosswalk_NICE[["5L"]])) {
     stop("Missing NICE crosswalk data in `options(eq.env)`. Please set the environment.")
   }
-  crosswalk_data <- pkgenv$crosswalk_NICE[[eq5d_version]]
+  cw <- pkgenv$crosswalk_NICE[["5L"]]
+  names(cw)[match(c("X_age",  "X_male"),  names(cw))] <- c("age",  "male")
   
   # Determine input type and construct data
   if (is.data.frame(x)) {
-    if (!all(dim.names %in% names(x))) stop("Provided dimension names not found in data.")
-    if (!(age %in% names(x)) || !(male %in% names(x))) stop("Age and male must be column names in `x`.")
-    
-    x$Domain <- apply(x[dim.names], 1, paste, collapse = "")
-    x$X_age <- x[[age]]
-    x$X_male <- as.numeric(x[[male]])
+    if (!all(dim.names %in% names(x))) 
+      stop("Provided dimension names not found in data.")
+    if (!(age %in% names(x)) || !(male %in% names(x))) 
+      stop("Age and male must be column names in `x`.")
+    df <- data.frame(
+      Domain = toEQ5Dindex(as.matrix(x[ , dim.names])),
+      age    = x[[age]],
+      male   = as.numeric(x[[male]]),
+      stringsAsFactors = FALSE
+    )
     
   } else if (is.vector(x)) {
-    x <- data.frame(
+    df <- data.frame(
       Domain = as.character(x),
-      X_age = age,
-      X_male = male,
+      age = age,
+      male = male,
       stringsAsFactors = FALSE
     )
   } else {
@@ -72,45 +76,48 @@ eqxw_NICE <- function(x, age, male, dim.names = c("mo", "sc", "ua", "pd", "ad"),
   }
   
   # Process age into age bands
-  if (is.numeric(x$X_age)) {
-    x$X_age <- cut(
-      x$X_age,
-      breaks = c(1, 18, 35, 45, 55, 65, 100),
-      labels = c("1", "1", "2", "3", "4", "5"),
-      right = FALSE
-    )
-    x$X_age <- as.numeric(as.character(x$X_age))
-  } else if (is.factor(x$X_age) || is.character(x$X_age)) {
-    x$X_age <- as.numeric(as.character(x$X_age))
+  df$age_band <- if (is.numeric(df$age)) {
+    as.numeric(cut(df$age,
+                   breaks = c(1, 18, 35, 45, 55, 65, 100),
+                   labels = c("1", "1", "2", "3", "4", "5"),
+                   right  = FALSE))
+  } else {
+    as.numeric(as.character(df$age))
   }
 
-  if (any(is.na(x$X_age))) stop("Age must be between 18 and 100 or an age band (1 to 5).")
-  # Determine type of input: domain or summary score
-  if (all(nchar(x$Domain) == 5 & grepl("^[1-5]{5}$", x$Domain))) {
-    
-    # Case 1: Domain-based
-    lookup <- crosswalk_data[, c("Domain", "Output", "X_age", "X_male")]
-    x <- merge(x, lookup, by = c("Domain", "X_age", "X_male"), all.x = TRUE)
-    
+  is_domain <- all(grepl("^[1-5]{5}$", df$Domain))
+  
+  if (is_domain) {
+    res <- merge(df,
+                 cw[ , c("Domain", "age", "male", "Output")],
+                 by.x = c("Domain", "age_band", "male"),
+                 by.y = c("Domain", "age",      "male"),
+                 all.x = TRUE, sort = FALSE)
   } else {
-    # Case 2: Summary score
-    x$X_U5 <- as.numeric(x$Domain)
-    lookup <- crosswalk_data[, c("X_U5", "Output", "X_age", "X_male")]
+    
+    df$score <- as.numeric(df$Domain)
+    cw$score   <- as.numeric(cw$Domain)
     
     if (bwidth == 0) {
-      x <- merge(x, lookup, by = c("X_U5", "X_age", "X_male"), all.x = TRUE)
+      res <- merge(df,
+                   cw[ , c("score", "age", "male", "Output")],
+                   by.x = c("score", "age_band", "male"),
+                   by.y = c("score", "age",      "male"),
+                   all.x = TRUE, sort = FALSE)
+      
     } else {
-      x$Output <- mapply(function(age, male, u5) {
-        subset <- lookup[lookup$X_age == age & lookup$X_male == male, ]
-        weights <- dnorm((subset$X_U5 - u5) / bwidth)
-        if (length(weights) > 0) {
-          weighted.mean(subset$Output, weights, na.rm = TRUE)
-        } else {
-          NA
-        }
-      }, x$X_age, x$X_male, x$X_U5)
+      
+      # kernel-weighted estimate
+      res <- df
+      res$Output <- mapply(
+        function(a, m, s) {
+          sub <- cw[cw$age == a & cw$male == m, ]
+          w   <- stats::dnorm((sub$score - s) / bwidth)
+          if (length(w)) stats::weighted.mean(sub$Output, w) else NA_real_
+        },
+        df$age_band, df$male, df$score, SIMPLIFY = TRUE)
     }
   }
 
-  return(x$Output)
+  return(res$Output)
 }

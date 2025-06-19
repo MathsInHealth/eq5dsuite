@@ -30,7 +30,7 @@ table_1_1_1<- function(df,
 #' @return Summary data frame.
 #' @examples
 #' table_1_1_2(
-#'  df = df,
+#'  df = example_data[example_data$time == "Pre-op",],
 #'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
 #'  name_cat = "procedure",
 #'  levels_cat = c("Hip Replacement", "Knee Replacement"),
@@ -90,10 +90,10 @@ table_1_2_1<- function(df,
 #' @export
 #' @examples
 #' table_1_1_3(
-#'   df = df,
+#'   df = example_data[example_data$time == "Pre-op",],
 #'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
-#'   eq5d_version = "3L", 
-#'   n = 10 
+#'   eq5d_version = "3L",
+#'   n = 10
 #' )
 #' @importFrom rlang .data
 
@@ -382,7 +382,6 @@ table_1_2_3 <- function(df,
 #' table_1_2_4(
 #'   df = example_data,
 #'   name_id = "id",
-#'   name_groupvar = "procedure",
 #'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
 #'   name_fu = "time",
 #'   levels_fu = c("Pre-op" , "Post-op")
@@ -491,6 +490,7 @@ table_1_2_4 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
+#' df <- data.frame(make_all_EQ_states(version = "5L"))
 #' table_1_3_1(
 #'   df, 
 #'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
@@ -998,9 +998,14 @@ table_2_2 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_3_1(df = example_data, country = "USA")
-#' table_3_1(df = example_data, eq5d_version = "3L", country = "Denmark")
-#' table_3_1(df = example_data, country = "Denmark")
+#' table_3_1(
+#'   example_data,
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'   name_fu = "time",
+#'   levels_fu = c('Pre-op', 'Post-op'),
+#'   eq5d_version = "3L",
+#'   country = "UK"
+#' )
 #' @importFrom rlang .data
 
 table_3_1 <- function(df, 
@@ -1055,7 +1060,13 @@ table_3_1 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_3_2(df = example_data, name_groupvar = "surgtype", country = "USA")
+#' table_3_2(
+#'   example_data,
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   name_groupvar = "procedure",
+#'   eq5d_version = "3L",
+#'   country = "UK"
+#' )
 #' @importFrom rlang .data
 
 table_3_2 <- function(df,
@@ -1120,8 +1131,21 @@ table_3_2 <- function(df,
 #' @return Summary data frame
 #' @export
 #' @examples
-#' table_3_3(df = example_data, name_age = "age", name_groupvar = "surgtype", 
-#'   country = "USA")
+#' example_data$ageband <- factor(
+#'   example_data$ageband,
+#'   levels = c("20 to 29", "30 to 39", "40 to 49", "50 to 59", "60 to 69", "70 to 79", "80 to 89")
+#' )
+#' example_data <- example_data[example_data$gender %in% c("Male", "Female"),]
+#' table_3_3(
+#'   example_data,
+#'   names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'   name_fu = "time",
+#'   levels_fu = c('Pre-op', 'Post-op'),
+#'   name_groupvar = "gender",
+#'   name_age = "ageband",
+#'   eq5d_version = "3L",
+#'   country = "UK"
+#' )
 #' @importFrom rlang .data
 
 table_3_3 <- function(df,
@@ -1839,10 +1863,11 @@ figure_1_2_4 <- function(df,
 #' @return A list with components:
 #'   \item{plot_data}{The plot data with ranks and classification.}
 #'   \item{p}{A \code{ggplot2} object displaying the HPG scatter plot.}
+#' @export
 #' @examples
 #' tmp <- figure_1_2_5(
 #'            df = example_data, 
-#'            names_eq5d = eqdims, 
+#'            names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
 #'            name_fu = "time", 
 #'            levels_fu = c("Pre-op", "Post-op"), 
 #'            name_id = "id", 
@@ -1863,10 +1888,12 @@ figure_1_2_5 <- function(df,
   temp <- .get_names(df = df,
                      names_eq5d = names_eq5d,
                      name_fu = name_fu,
-                     levels_fu = levels_fu)
+                     levels_fu = levels_fu,
+                     eq5d_version = eq5d_version)
   names_eq5d <- temp$names_eq5d
   name_fu    <- temp$name_fu
   levels_fu  <- temp$levels_fu
+  eq5d_version <- temp$eq5d_version
   
   # Check columns exist
   names_all <- c(name_id,  names_eq5d, name_fu)
@@ -1993,9 +2020,15 @@ figure_1_2_5 <- function(df,
 #' @param country A character string representing the name of the country. 
 #' This could be in a 2-letter format, full name or short name, as specified in the country_codes datasets.
 #' @return Summary plot and data used for plotting
-
+#' @export
 #' @examples
-#' tmp <- figure_1_3_1(df = example_data, country = "USA")
+#' df <- data.frame(make_all_EQ_states(version = "5L"))
+#' tmp <- figure_1_3_1(
+#'  df, 
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'  eq5d_version = "5L", 
+#'  country = "US"
+#' )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2092,7 +2125,12 @@ figure_1_3_1 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_1_3_2(df = example_data, country = "USA")
+#' tmp <- figure_1_3_2(
+#'  example_data, 
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'  eq5d_version = "3L",
+#'  country = "UK"
+#' )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2198,7 +2236,7 @@ figure_1_3_2 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_2_1(df = example_data)
+#' tmp <- figure_2_1(example_data, name_vas = 'vas')
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2254,7 +2292,7 @@ figure_2_1 <- function(df, name_vas = NULL){
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_2_2(df = example_data)
+#' tmp <- figure_2_2(example_data, name_vas = 'vas')
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2300,7 +2338,14 @@ figure_2_2 <- function(df, name_vas = NULL){
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_3_1(df = example_data, name_fu = "month", country = "USA")
+#' tmp <- figure_3_1(
+#'  example_data,
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'  name_fu = "time",
+#'  levels_fu = c('Pre-op', 'Post-op'),
+#'  eq5d_version = "3L",
+#'  country = "UK"
+#' )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2373,7 +2418,13 @@ figure_3_1 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_3_2(df = example_data, name_groupvar = "surgtype", country = "USA")
+#' tmp <- figure_3_2(
+#'  example_data,
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'  name_groupvar = "procedure",
+#'  eq5d_version = "3L",
+#'  country = "UK"
+#' )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2455,8 +2506,15 @@ figure_3_2 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_3_3(df = example_data, name_fu = "month", 
-#'   name_groupvar = "gender", country = "USA")
+#' tmp <- figure_3_3(
+#'  example_data,
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'  name_fu = "time",
+#'  levels_fu = c('Pre-op', 'Post-op'),
+#'  name_groupvar = "procedure",
+#'  eq5d_version = "3L",
+#'  country = "UK"
+#' )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2533,7 +2591,12 @@ figure_3_3 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_3_4(df = example_data, country = "USA")
+#' tmp <- figure_3_4(
+#'  example_data,
+#'  names_eq5d = c("mo", "sc", "ua", "pd", "ad"), 
+#'  eq5d_version = "3L",
+#'  country = "UK"
+#' )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data
@@ -2594,7 +2657,13 @@ figure_3_4 <- function(df,
 #' @return Summary plot and data used for plotting
 #' @export
 #' @examples
-#' tmp <- figure_3_5(df = example_data, country = "USA")
+#' tmp <- figure_3_5(
+#'    example_data,
+#'    names_eq5d = c("mo", "sc", "ua", "pd", "ad"),
+#'    name_vas = "vas",
+#'    eq5d_version = "3L",
+#'    country = "UK"
+#'  )
 #' tmp$p
 #' tmp$plot_data
 #' @importFrom rlang .data

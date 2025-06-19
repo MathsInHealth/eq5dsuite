@@ -94,7 +94,7 @@ make_all_EQ_states <- function(version = "5L", dim.names = c("mo", "sc", "ua", "
 #' @export
 make_all_EQ_indexes <- function(version = "5L", dim.names = c("mo", "sc", "ua", "pd", "ad")) {
   if(!length(dim.names) == 5) stop("Argument dim.names not of length 5.")
-  states <- do.call(make_all_EQ_states, list(dim.names = dim.names))
+  states <- do.call(make_all_EQ_states, list(version = version, dim.names = dim.names))
   toEQ5Dindex(states, dim.names = dim.names)
   #toEQ5Dindex(do.call(make_all_EQ_states, as.list(match.call()[-1])))
 }
