@@ -1,7 +1,7 @@
 Package: eq5dsuite
 Type: Package
-Title: Manipulating and Analysing EQ-5d Data
-Version: 1.0.0
+Title: Handling and Analysing EQ-5d Data
+Version: 1.0.1
 Authors@R: 
   c(person(given = "Kim",
            family = "Rand",
