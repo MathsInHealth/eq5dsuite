@@ -27,6 +27,19 @@ All three implementations provide:
   following the recommendations of Devlin et al. (2020)
 - Support for published national value sets and user-defined 
   custom value sets
+  
+## Value sets
+
+Country-specific value sets are maintained in a dedicated 
+repository:
+
+**[eq5dsuite-value-sets](https://github.com/MathsInHealth/eq5dsuite-value-sets)**
+
+This repository contains value set data for all three EQ-5D 
+instruments (EQ-5D-3L, EQ-5D-5L, and EQ-5D-Y-3L) and is used 
+to support automatic updates. New value sets are added as they are 
+published in the literature, without requiring a full package 
+update.
 
 ## Getting started
 
@@ -74,6 +87,7 @@ the relevant repository:
 - [R issues](https://github.com/MathsInHealth/eq5dsuite-r/issues)
 - [Stata issues](https://github.com/MathsInHealth/eq5dsuite-stata/issues)
 - [Excel issues](https://github.com/MathsInHealth/eq5dsuite-excel/issues)
+- [Value set issues](https://github.com/MathsInHealth/eq5dsuite-value-sets/issues)
 
 For general enquiries, contact 
 [info@mathsinhealth.com](mailto:info@mathsinhealth.com).
